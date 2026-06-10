@@ -48,6 +48,15 @@ export default function App() {
   const [isMobileOpen, setIsMobileOpen] = useState<boolean>(false);
   // Upload modal triggered state
   const [isUploadOpen, setIsUploadOpen] = useState<boolean>(false);
+
+  // Track if there is a backup available in localStorage
+  const [hasBackup, setHasBackup] = useState<boolean>(() => {
+    try {
+      return !!localStorage.getItem('dhofar_dashboard_backup');
+    } catch (_) {
+      return false;
+    }
+  });
   
   // Reactive Database state with persistent client storage fallback
   const [dashboardData, setDashboardData] = useState<DashboardData>(() => {
@@ -93,9 +102,142 @@ export default function App() {
   const toggleLang = () => setLang(prev => (prev === 'ar' ? 'en' : 'ar'));
   const toggleTheme = () => setTheme(prev => (prev === 'bento' ? 'immersive' : 'bento'));
 
-  // Reset database state to clean original Omani records
+  // Reset database state to clean original Omani records with backup feature
   const resetToFactoryData = () => {
+    try {
+      localStorage.setItem('dhofar_dashboard_backup', JSON.stringify(dashboardData));
+      setHasBackup(true);
+    } catch (_) {}
     setDashboardData({ ...INITIAL_DATA });
+  };
+
+  // Revert last uploads or deletes
+  const undoLastAction = () => {
+    try {
+      const backup = localStorage.getItem('dhofar_dashboard_backup');
+      if (backup) {
+        const parsed = JSON.parse(backup);
+        setDashboardData(parsed);
+        localStorage.removeItem('dhofar_dashboard_backup');
+        setHasBackup(false);
+        return true;
+      }
+    } catch (e) {
+      console.error("Error reverting last action:", e);
+    }
+    return false;
+  };
+
+  // Clear a specific month's data and decrement all metrics symmetrically
+  const deleteMonthAndYear = (targetYear: string, targetMonth: string) => {
+    try {
+      // 1. Store backup first
+      localStorage.setItem('dhofar_dashboard_backup', JSON.stringify(dashboardData));
+      setHasBackup(true);
+
+      const updated = JSON.parse(JSON.stringify(dashboardData)) as DashboardData;
+      const monthVisits = updated.by_year_month[targetYear]?.[targetMonth] || 0;
+      if (monthVisits <= 0) return false;
+
+      // Decrement main totals
+      updated.total = Math.max(0, updated.total - monthVisits);
+
+      if (updated.by_year[targetYear] !== undefined) {
+        updated.by_year[targetYear] = Math.max(0, updated.by_year[targetYear] - monthVisits);
+        if (updated.by_year[targetYear] === 0) {
+          delete updated.by_year[targetYear];
+        }
+      }
+
+      if (updated.by_month[targetMonth] !== undefined) {
+        updated.by_month[targetMonth] = Math.max(0, updated.by_month[targetMonth] - monthVisits);
+        if (updated.by_month[targetMonth] === 0) {
+          delete updated.by_month[targetMonth];
+        }
+      }
+
+      // Delete from by_year_month map
+      if (updated.by_year_month[targetYear]) {
+        delete updated.by_year_month[targetYear][targetMonth];
+        if (Object.keys(updated.by_year_month[targetYear]).length === 0) {
+          delete updated.by_year_month[targetYear];
+        }
+      }
+
+      // Subtract from wilayat level stats
+      Object.keys(updated.by_wil_year_month || {}).forEach(w => {
+        const wMonthVisits = updated.by_wil_year_month[w]?.[targetYear]?.[targetMonth] || 0;
+        if (wMonthVisits > 0) {
+          if (updated.by_wilayat[w] !== undefined) {
+            updated.by_wilayat[w] = Math.max(0, updated.by_wilayat[w] - wMonthVisits);
+          }
+          if (updated.by_wil_year[w]?.[targetYear] !== undefined) {
+            updated.by_wil_year[w][targetYear] = Math.max(0, updated.by_wil_year[w][targetYear] - wMonthVisits);
+            if (updated.by_wil_year[w][targetYear] === 0) {
+              delete updated.by_wil_year[w][targetYear];
+            }
+          }
+          if (updated.by_wil_month[w]?.[targetMonth] !== undefined) {
+            updated.by_wil_month[w][targetMonth] = Math.max(0, updated.by_wil_month[w][targetMonth] - wMonthVisits);
+            if (updated.by_wil_month[w][targetMonth] === 0) {
+              delete updated.by_wil_month[w][targetMonth];
+            }
+          }
+          delete updated.by_wil_year_month[w][targetYear][targetMonth];
+          if (Object.keys(updated.by_wil_year_month[w][targetYear]).length === 0) {
+            delete updated.by_wil_year_month[w][targetYear];
+          }
+        }
+      });
+
+      // Subtract from establishment level stats
+      Object.keys(updated.by_estab_year_month || {}).forEach(est => {
+        const estMonthVisits = updated.by_estab_year_month[est]?.[targetYear]?.[targetMonth] || 0;
+        if (estMonthVisits > 0) {
+          if (updated.by_estab_year[est]?.[targetYear] !== undefined) {
+            updated.by_estab_year[est][targetYear] = Math.max(0, updated.by_estab_year[est][targetYear] - estMonthVisits);
+            if (updated.by_estab_year[est][targetYear] === 0) {
+              delete updated.by_estab_year[est][targetYear];
+            }
+          }
+          if (updated.by_estab_month[est]?.[targetMonth] !== undefined) {
+            updated.by_estab_month[est][targetMonth] = Math.max(0, updated.by_estab_month[est][targetMonth] - estMonthVisits);
+            if (updated.by_estab_month[est][targetMonth] === 0) {
+              delete updated.by_estab_month[est][targetMonth];
+            }
+          }
+          delete updated.by_estab_year_month[est][targetYear][targetMonth];
+          if (Object.keys(updated.by_estab_year_month[est][targetYear]).length === 0) {
+            delete updated.by_estab_year_month[est][targetYear];
+          }
+        }
+      });
+
+      // Maintain distribution parity across dimensions
+      const ratio = updated.total > 0 && dashboardData.total > 0 ? (updated.total / dashboardData.total) : 0;
+      if (ratio > 0) {
+        updated.by_enc.OPD = Math.round(updated.by_enc.OPD * ratio);
+        updated.by_enc.ANE = Math.round(updated.by_enc.ANE * ratio);
+        updated.by_enc.COMMUNITY = Math.round(updated.by_enc.COMMUNITY * ratio);
+
+        updated.by_shift['1ST SHIFT (MORNING)'] = Math.round(updated.by_shift['1ST SHIFT (MORNING)'] * ratio);
+        updated.by_shift['2nd SHIFT (AFTERNOON)'] = Math.round(updated.by_shift['2nd SHIFT (AFTERNOON)'] * ratio);
+        updated.by_shift['3RD SHIFT (NIGHT)'] = Math.round(updated.by_shift['3RD SHIFT (NIGHT)'] * ratio);
+
+        updated.by_holiday['WORKING DAY'] = Math.round(updated.by_holiday['WORKING DAY'] * ratio);
+        updated.by_holiday['HOLIDAY'] = Math.round(updated.by_holiday['HOLIDAY'] * ratio);
+      } else {
+        updated.by_enc = { OPD: 0, ANE: 0, COMMUNITY: 0 };
+        updated.by_shift = { '1ST SHIFT (MORNING)': 0, '2nd SHIFT (AFTERNOON)': 0, '3RD SHIFT (NIGHT)': 0 };
+        updated.by_holiday = { 'WORKING DAY': 0, 'HOLIDAY': 0 };
+      }
+
+      setDashboardData(updated);
+      return true;
+    } catch (e) {
+      console.error(e);
+      return false;
+    }
   };
 
   // Get active style configuration
@@ -105,6 +247,12 @@ export default function App() {
 
   // Handler for custom reactive dataset upload
   const handleUploadedDataset = (newParsedData: DashboardData, action: 'merge' | 'replace') => {
+    // Generate copy to backup
+    try {
+      localStorage.setItem('dhofar_dashboard_backup', JSON.stringify(dashboardData));
+      setHasBackup(true);
+    } catch (_) {}
+
     if (action === 'replace') {
       setDashboardData(newParsedData);
     } else {
@@ -380,6 +528,11 @@ export default function App() {
           onClose={() => setIsUploadOpen(false)}
           lang={lang}
           onDataApplied={(newData, meta) => handleUploadedDataset(newData, meta.mode)}
+          currentData={dashboardData}
+          onDeleteMonthYear={deleteMonthAndYear}
+          onUndoLastAction={undoLastAction}
+          hasBackup={hasBackup}
+          onResetFactory={resetToFactoryData}
         />
       )}
     </div>
