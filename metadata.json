@@ -1,0 +1,6 @@
+{
+  "name": "Dhofar Health Dashboard",
+  "description": "لوحة المؤشرات الصحية لمحافظة ظفار - سلطنة عمان لمراقبة أداء العيادات الخارجية وحالات الطوارئ والمؤسسات الصحية لفترة 2023 - 2025.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
