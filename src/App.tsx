@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { UploadModal } from './components/UploadModal';
+import { Menu, X } from 'lucide-react';
 import { INITIAL_DATA } from './data';
 import { DashboardData, LangType, ThemeType, PageType } from './types';
 import { themeStyles } from './theme';
@@ -15,16 +16,76 @@ import { MonthPage } from './components/MonthPage';
 import { WorkdayPage } from './components/WorkdayPage';
 
 export default function App() {
-  // Theme state: default to 'immersive' (High density Dark Slate theme)
-  const [theme, setTheme] = useState<ThemeType>('immersive');
+  // Theme state: default to 'bento' (Classic Bento Grid theme)
+  const [theme, setTheme] = useState<ThemeType>(() => {
+    try {
+      const saved = localStorage.getItem('dhofar_dashboard_theme');
+      if (saved && (saved === 'bento' || saved === 'immersive' || saved === 'luxury')) {
+        return saved as ThemeType;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    return 'bento';
+  });
+
   // Language state
-  const [lang, setLang] = useState<LangType>('ar');
+  const [lang, setLang] = useState<LangType>(() => {
+    try {
+      const saved = localStorage.getItem('dhofar_dashboard_lang');
+      if (saved && (saved === 'ar' || saved === 'en')) {
+        return saved as LangType;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    return 'ar';
+  });
+
   // Active Tab state
   const [activeTab, setActiveTab] = useState<PageType>('overview');
+  // Mobile drawer state
+  const [isMobileOpen, setIsMobileOpen] = useState<boolean>(false);
   // Upload modal triggered state
   const [isUploadOpen, setIsUploadOpen] = useState<boolean>(false);
-  // Reactive Database state
-  const [dashboardData, setDashboardData] = useState<DashboardData>({ ...INITIAL_DATA });
+  
+  // Reactive Database state with persistent client storage fallback
+  const [dashboardData, setDashboardData] = useState<DashboardData>(() => {
+    try {
+      const saved = localStorage.getItem('dhofar_dashboard_data');
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (e) {
+      console.error("Error loading saved dashboard data:", e);
+    }
+    return { ...INITIAL_DATA };
+  });
+
+  // Sync state changes to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('dhofar_dashboard_theme', theme);
+    } catch (e) {
+      console.error(e);
+    }
+  }, [theme]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('dhofar_dashboard_lang', lang);
+    } catch (e) {
+      console.error(e);
+    }
+  }, [lang]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('dhofar_dashboard_data', JSON.stringify(dashboardData));
+    } catch (e) {
+      console.error("Error saving dashboard data:", e);
+    }
+  }, [dashboardData]);
 
   const isAr = lang === 'ar';
 
@@ -197,6 +258,14 @@ export default function App() {
       dir={isAr ? 'rtl' : 'ltr'} 
       id="aistudio_dashboard_main_container"
     >
+      {/* MOBILE DRAWERS OVERLAY BACKDROP */}
+      {isMobileOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 z-40 md:hidden backdrop-blur-xs transition-opacity duration-300" 
+          onClick={() => setIsMobileOpen(false)}
+        />
+      )}
+
       {/* SIDEBAR NAVIGATION CONTROLS */}
       <Sidebar 
         theme={theme}
@@ -206,6 +275,8 @@ export default function App() {
         currentTab={activeTab}
         setTab={setActiveTab}
         openUpload={() => setIsUploadOpen(true)}
+        isMobileOpen={isMobileOpen}
+        onCloseMobile={() => setIsMobileOpen(false)}
       />
 
       {/* MAIN MAIN CONTENT STAGE */}
@@ -218,28 +289,57 @@ export default function App() {
               🇴🇲
             </div>
             <div>
-              <h1 className={`text-base font-black tracking-tight select-none ${currentThemeStyles.headerText}`}>
+              <h1 className={`text-sm md:text-base font-black tracking-tight select-none ${currentThemeStyles.headerText}`}>
                 {isAr ? 'تطبيق لوحة مؤشرات صحة ظفار الموثق' : 'Dhofar Health Indicators Dashboard'}
               </h1>
-              <p className={`text-[10px] font-bold leading-none mt-0.5 select-none ${currentThemeStyles.headerDesc}`}>
+              <p className={`text-[9px] md:text-[10px] font-bold leading-none mt-0.5 select-none ${currentThemeStyles.headerDesc}`}>
                 {isAr ? 'المديرية العامة للخدمات الصحية بمحافظة ظفار' : 'Directorate General of Health Services (DGHS) - Dhofar'}
               </p>
             </div>
           </div>
 
-          {/* Quick toggle headers (Upper pill bar) */}
-          <div className="hidden lg:flex items-center gap-2">
-            <button 
-              onClick={toggleLang} 
-              className="bg-slate-500/10 border border-slate-500/20 hover:bg-slate-500/20 text-xs font-black px-3.5 py-1.5 rounded-full cursor-pointer transition-all select-none"
+          {/* Quick toggle headers & Mobile Switchers */}
+          <div className="flex items-center gap-2">
+            <div className="hidden sm:flex items-center gap-1.5">
+              <button 
+                onClick={toggleLang} 
+                className={`border text-[11px] font-bold px-3 py-1.5 rounded-full cursor-pointer transition-all select-none ${
+                  theme === 'bento' 
+                    ? 'bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200' 
+                    : theme === 'luxury'
+                    ? 'bg-[#152e32] border-[#244f55]/85 text-[#87a3a6] hover:bg-[#1a3d42]'
+                    : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700'
+                }`}
+              >
+                {isAr ? 'English' : 'العربية'}
+              </button>
+              <button 
+                onClick={toggleTheme} 
+                className={`border text-[11px] font-bold px-3 py-1.5 rounded-full cursor-pointer transition-all select-none ${
+                  theme === 'bento' 
+                    ? 'bg-slate-100 border-slate-200 text-slate-705 hover:bg-slate-200' 
+                    : theme === 'luxury'
+                    ? 'bg-[#152e32] border-[#244f55]/85 text-[#87a3a6] hover:bg-[#1a3d42]'
+                    : 'bg-slate-800 border-slate-700 text-slate-300 hover:bg-slate-700'
+                }`}
+              >
+                {theme === 'bento' ? '🌙' : '☀️'}
+              </button>
+            </div>
+
+            {/* Mobile/Tablet Menu Button */}
+            <button
+              onClick={() => setIsMobileOpen(p => !p)}
+              className={`p-2 rounded-xl border md:hidden transition-all duration-200 ${
+                theme === 'bento'
+                  ? 'bg-slate-100 border-slate-200 text-slate-800 hover:bg-slate-200'
+                  : theme === 'luxury'
+                  ? 'bg-[#152e32] border-[#244f55]/80 text-[#fdfcfb] hover:bg-[#1a3d42]'
+                  : 'bg-[#1c2942]/60 border-[#2d3a54]/50 text-[#f1f5f9] hover:bg-slate-800'
+              }`}
+              aria-label="Toggle menu"
             >
-              {isAr ? 'English' : 'العربية'}
-            </button>
-            <button 
-              onClick={toggleTheme} 
-              className="bg-slate-500/10 border border-slate-500/20 hover:bg-slate-500/20 text-xs font-black px-3.5 py-1.5 rounded-full cursor-pointer transition-all select-none"
-            >
-              {theme === 'bento' ? '🌙' : '☀️'}
+              {isMobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </header>

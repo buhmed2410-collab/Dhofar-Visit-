@@ -21,7 +21,57 @@ interface SidebarProps {
   lang: LangType;
   setLang: (lang: LangType) => void;
   openUpload: () => void;
+  isMobileOpen?: boolean;
+  onCloseMobile?: () => void;
 }
+
+const sidebarThemes = {
+  immersive: {
+    bg: 'bg-[#0f172a]',
+    text: 'text-[#f1f5f9]',
+    border: 'border-[#1e293b]',
+    headerBorder: 'border-[#1e293b]',
+    itemActive: 'bg-sky-500/10 text-sky-400 border border-sky-500/20 shadow-inner',
+    itemHover: 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200',
+    itemIconActive: 'text-sky-450',
+    itemIconInactive: 'text-slate-500',
+    controlBg: 'bg-slate-950/20',
+    controlSubBg: 'bg-slate-950/50 p-1 rounded-lg border border-white/5',
+    pillText: 'text-slate-450 hover:text-slate-200',
+    pillActive: 'bg-sky-500 text-slate-950 font-bold shadow-md shadow-sky-500/10',
+    textMuted: 'text-slate-400'
+  },
+  bento: {
+    bg: 'bg-white',
+    text: 'text-slate-800',
+    border: 'border-slate-200/90',
+    headerBorder: 'border-slate-100',
+    itemActive: 'bg-blue-50 text-blue-600 border border-blue-100 shadow-xs font-semibold',
+    itemHover: 'text-slate-500 hover:bg-slate-50 hover:text-slate-900',
+    itemIconActive: 'text-blue-500',
+    itemIconInactive: 'text-slate-400',
+    controlBg: 'bg-slate-50/50',
+    controlSubBg: 'bg-slate-100 p-1 rounded-lg border border-slate-200/50',
+    pillText: 'text-slate-650 hover:text-slate-900',
+    pillActive: 'bg-blue-600 text-white font-bold shadow-sm shadow-blue-500/10',
+    textMuted: 'text-slate-500'
+  },
+  luxury: {
+    bg: 'bg-[#112326]',
+    text: 'text-[#fdfcfb]',
+    border: 'border-[#244f55]/80',
+    headerBorder: 'border-[#1f3f44]/80',
+    itemActive: 'bg-amber-500/10 text-amber-500 border border-amber-500/20 shadow-inner',
+    itemHover: 'text-[#87a3a6] hover:bg-[#1a3d42]/30 hover:text-[#fdfcfb]',
+    itemIconActive: 'text-amber-500',
+    itemIconInactive: 'text-[#87a3a6]',
+    controlBg: 'bg-[#0e2124]/40',
+    controlSubBg: 'bg-[#080d0e] p-1 rounded-lg border border-[#244f55]/30',
+    pillText: 'text-[#87a3a6] hover:text-[#fdfcfb]',
+    pillActive: 'bg-amber-500 text-slate-950 font-bold shadow-md shadow-amber-500/10',
+    textMuted: 'text-[#87a3a6]'
+  }
+};
 
 export function Sidebar({
   currentTab,
@@ -30,9 +80,12 @@ export function Sidebar({
   setTheme,
   lang,
   setLang,
-  openUpload
+  openUpload,
+  isMobileOpen,
+  onCloseMobile
 }: SidebarProps) {
   const isAr = lang === 'ar';
+  const sTheme = sidebarThemes[theme] || sidebarThemes.immersive;
 
   const menuItems = [
     { id: 'overview', icon: <BarChart3 className="w-5 h-5" />, ar: 'المؤشرات الصحية', en: 'Health Indicators' },
@@ -44,27 +97,32 @@ export function Sidebar({
     { id: 'workday', icon: <Clock className="w-5 h-5" />, ar: 'أيام العمل والشفتات', en: 'Work Days & Shifts' },
   ] as const;
 
+  // Responsive dynamic styling for solid layout
+  const responsiveClasses = isMobileOpen 
+    ? `fixed inset-y-0 z-50 flex flex-col h-screen overflow-y-auto ${isAr ? 'right-0 border-l' : 'left-0 border-r'} shadow-2xl transition-all duration-300 w-64 ${sTheme.bg} ${sTheme.border} ${sTheme.text}`
+    : `hidden md:flex md:sticky top-0 h-screen flex-col overflow-y-auto flex-shrink-0 z-30 transition-all w-64 ${isAr ? 'rtl:border-l rtl:border-r-0 ltr:border-r ltr:border-l-0' : 'ltr:border-r ltr:border-l-0 rtl:border-l rtl:border-r-0'} ${sTheme.bg} ${sTheme.border} ${sTheme.text}`;
+
   return (
-    <aside className="w-64 h-screen fixed top-0 right-0 border-l border-white/10 bg-slate-900/90 text-slate-100 flex flex-col z-50 overflow-y-auto ltr:left-0 ltr:right-auto ltr:border-l-0 ltr:border-r ltr:border-white/10">
+    <aside className={responsiveClasses}>
       {/* BRANDING */}
-      <div className="p-6 border-b border-white/10 text-center flex flex-col items-center">
+      <div className={`p-6 border-b text-center flex flex-col items-center ${sTheme.headerBorder}`}>
         <div className="w-14 h-14 bg-gradient-to-tr from-sky-400 to-indigo-500 rounded-2xl flex items-center justify-center text-3xl shadow-lg shadow-sky-500/20 mb-3">
           🏥
         </div>
-        <h2 className="text-sm font-bold leading-relaxed text-slate-100 mb-1">
+        <h2 className="text-sm font-bold leading-relaxed mb-1">
           {isAr ? (
             <>المؤشرات الصحية<br />محافظة ظفار</>
           ) : (
             <>Health Indicators<br />Dhofar Governorate</>
           )}
         </h2>
-        <p className="text-[10px] text-slate-400 font-mono">2023 – 2025</p>
+        <p className={`text-[10px] font-mono ${sTheme.textMuted}`}>2023 – 2025</p>
         
-        <div className="mt-3 pt-3 border-t border-white/10 w-full flex flex-col gap-0.5 text-[9px] font-semibold text-slate-300">
-          <span className="text-sky-400">
+        <div className={`mt-3 pt-3 border-t w-full flex flex-col gap-0.5 text-[9px] font-semibold ${sTheme.headerBorder}`}>
+          <span className="text-sky-550">
             {isAr ? 'دائرة التخطيط والتنظيم الصحي' : 'Planning & Health Org Dept'}
           </span>
-          <span className="text-slate-400">
+          <span className={`${sTheme.textMuted}`}>
             {isAr ? 'إدارة المعلومات الصحية' : 'Health Information Department'}
           </span>
         </div>
@@ -72,7 +130,7 @@ export function Sidebar({
 
       {/* NAVIGATION SECTION */}
       <div className="p-3 flex-1 flex flex-col gap-1">
-        <div className="text-[10px] uppercase tracking-wider text-slate-500 px-3 font-bold mb-2">
+        <div className={`text-[10px] uppercase tracking-wider px-3 font-bold mb-2 ${sTheme.textMuted}`}>
           {isAr ? 'الصفحات' : 'Dashboard Pages'}
         </div>
         
@@ -81,14 +139,17 @@ export function Sidebar({
           return (
             <button
               key={item.id}
-              onClick={() => setTab(item.id)}
+              onClick={() => {
+                setTab(item.id);
+                onCloseMobile?.();
+              }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 text-right ltr:text-left text-sm ${
                 active 
-                  ? 'bg-sky-500/10 text-sky-400 border border-sky-500/20 shadow-inner' 
-                  : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'
+                  ? sTheme.itemActive 
+                  : sTheme.itemHover
               }`}
             >
-              <span className={`transition-transform duration-200 ${active ? 'scale-110 text-sky-400' : 'text-slate-500'}`}>
+              <span className={`transition-transform duration-200 ${active ? sTheme.itemIconActive : sTheme.itemIconInactive}`}>
                 {item.icon}
               </span>
               <span className="flex-1 font-medium text-xs">
@@ -100,14 +161,14 @@ export function Sidebar({
       </div>
 
       {/* SYSTEM CONTROLS */}
-      <div className="p-4 border-t border-white/10 bg-slate-950/20">
+      <div className={`p-4 border-t ${sTheme.headerBorder} ${sTheme.controlBg}`}>
         {/* THEME SELECTOR */}
         <div className="mb-4">
-          <div className="text-[9px] uppercase tracking-widest text-slate-500 font-bold mb-2 flex items-center gap-1.5 justify-center">
+          <div className="text-[9px] uppercase tracking-widest font-bold mb-2 flex items-center gap-1.5 justify-center opacity-85">
             <Palette className="w-3 h-3 text-slate-400" />
             <span>{isAr ? 'مظهر المنصة' : 'Dashboard Theme'}</span>
           </div>
-          <div className="grid grid-cols-3 gap-1 bg-slate-950/50 p-1 rounded-lg border border-white/5">
+          <div className={`grid grid-cols-3 gap-1 p-1 rounded-lg border ${sTheme.controlSubBg}`}>
             {(['immersive', 'bento', 'luxury'] as const).map((t) => {
               const label = t === 'immersive' ? (isAr ? 'داكن' : 'Dark') : t === 'bento' ? (isAr ? 'بنتو' : 'Bento') : (isAr ? 'ذهبي' : 'Gold');
               const active = theme === t;
@@ -117,8 +178,8 @@ export function Sidebar({
                   onClick={() => setTheme(t)}
                   className={`text-[10px] py-1.5 rounded-md transition-all font-medium text-center ${
                     active 
-                      ? 'bg-sky-500 text-slate-950 font-bold shadow-md shadow-sky-500/10' 
-                      : 'text-slate-400 hover:text-slate-200'
+                      ? sTheme.pillActive 
+                      : sTheme.pillText
                   }`}
                 >
                   {label}
@@ -130,17 +191,17 @@ export function Sidebar({
 
         {/* LANGUAGE SELECTOR */}
         <div className="mb-4">
-          <div className="text-[9px] uppercase tracking-widest text-slate-500 font-bold mb-2 flex items-center gap-1.5 justify-center">
+          <div className="text-[9px] uppercase tracking-widest font-bold mb-2 flex items-center gap-1.5 justify-center opacity-85">
             <Languages className="w-3 h-3 text-slate-400" />
             <span>{isAr ? 'لغة العرض' : 'Platform Language'}</span>
           </div>
-          <div className="grid grid-cols-2 gap-1 bg-slate-950/50 p-1 rounded-lg border border-white/5">
+          <div className={`grid grid-cols-2 gap-1 p-1 rounded-lg border ${sTheme.controlSubBg}`}>
             <button
               onClick={() => setLang('ar')}
               className={`text-xs py-1.5 rounded-md transition-all text-center font-medium ${
                 isAr 
-                  ? 'bg-sky-500 text-slate-950 font-bold' 
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? sTheme.pillActive 
+                  : sTheme.pillText
               }`}
             >
               العربية
@@ -149,8 +210,8 @@ export function Sidebar({
               onClick={() => setLang('en')}
               className={`text-xs py-1.5 rounded-md transition-all text-center font-medium ${
                 !isAr 
-                  ? 'bg-sky-500 text-slate-950 font-bold' 
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? sTheme.pillActive 
+                  : sTheme.pillText
               }`}
             >
               English
@@ -161,7 +222,13 @@ export function Sidebar({
         {/* UPLOAD Trigger */}
         <button
           onClick={openUpload}
-          className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-sky-400/10 to-indigo-500/10 border border-sky-400/30 hover:border-sky-400/60 text-sky-400 hover:bg-sky-400/15 transition-all duration-300 font-bold text-xs"
+          className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl transition-all duration-300 font-bold text-xs ${
+            theme === 'bento'
+              ? 'bg-blue-500/10 border border-blue-500/30 hover:border-blue-500/60 text-blue-600 hover:bg-blue-500/15'
+              : theme === 'luxury'
+              ? 'bg-amber-500/10 border border-amber-500/30 hover:border-amber-500/60 text-amber-500 hover:bg-amber-500/15'
+              : 'bg-sky-400/10 border border-sky-400/30 hover:border-sky-400/60 text-sky-400 hover:bg-sky-400/15'
+          }`}
         >
           <FolderOpen className="w-4 h-4" />
           <span>{isAr ? 'رفع بيانات جديدة' : 'Upload New Data'}</span>
