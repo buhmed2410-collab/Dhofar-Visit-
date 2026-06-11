@@ -162,14 +162,14 @@ export function WilayatPage({ data, lang, theme }: WilayatPageProps) {
         {/* Visits Checkups */}
         <div className={`transition-all ${styles.innerCardBg}`}>
           <div className={`flex items-center justify-between ${styles.textMuted}`}>
-            <span className="text-xs font-bold">{isAr ? 'التردد الجغرافي النشط' : 'Regional Active Case Flow'}</span>
+            <span className="text-xs font-bold">{isAr ? 'المترددين حسب الولايات' : 'Visitors by Wilayat'}</span>
             <Users className="w-4 h-4 text-sky-400" />
           </div>
           <div className={`text-xl font-black font-mono mt-1.5 leading-none ${styles.textMain}`}>
             {fmt(totals.visits)}
           </div>
           <p className="text-[10px] text-slate-400 mt-2">
-            {isAr ? 'إجمالي المترددين للمجال الجاري' : 'Cumulative clinic checkups matching scope'}
+            {isAr ? 'إجمالي المترددين' : 'Total Visitors'}
           </p>
         </div>
 
@@ -222,7 +222,7 @@ export function WilayatPage({ data, lang, theme }: WilayatPageProps) {
         {/* Wilayat Checkups Comparison */}
         <div className={`${styles.innerCardBg}`}>
           <h4 className={`text-xs font-bold mb-1 ${styles.textMain}`}>
-            {isAr ? 'مستويات التوافد بين الولايات' : 'Checking Municipal Load Metrics'}
+            {isAr ? 'المترددين حسب الولايات' : 'Visitors by Wilayat'}
           </h4>
           <p className="text-[10px] text-slate-400 mb-3">{isAr ? 'احصائيات التميز الجغرافي المقارن المباشر' : 'Relative loading comparing in-scope areas'}</p>
           <div className="h-72">
@@ -249,9 +249,9 @@ export function WilayatPage({ data, lang, theme }: WilayatPageProps) {
         {/* Stacked encounter classifications */}
         <div className={`${styles.innerCardBg}`}>
           <h4 className={`text-xs font-bold mb-1 ${styles.textMain}`}>
-            {isAr ? 'أنواع التدخلات العلاجية بالولاية' : 'Case Stratification by Wilayat'}
+            {isAr ? 'المترددين حسب نوع الزيارة' : 'Visitors by Visit Type'}
           </h4>
-          <p className="text-[10px] text-slate-400 mb-3">{isAr ? 'تأطير المترددين بين الخدمة المفتوحة والحصص الحرجة' : 'Case types ratios structured per active geography'}</p>
+          <p className="text-[10px] text-slate-400 mb-3">{isAr ? 'نوع الزيارة عيادة خارجية / طوارئ/ رعاية إجتماعية' : 'Visit Type: OPD / Emergency / Community'}</p>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={encChartData}>
@@ -274,10 +274,9 @@ export function WilayatPage({ data, lang, theme }: WilayatPageProps) {
 
       {/* TREND STACK CHANGES OVER YEARS */}
       <div className={`${styles.innerCardBg}`}>
-        <h4 className={`text-xs font-bold mb-1 ${styles.textMain}`}>
-          {isAr ? 'تطور الزيارات في الولايات عبر السنوات' : 'Checkup Trend Over Years'}
+        <h4 className={`text-xs font-bold mb-4 ${styles.textMain}`}>
+          {isAr ? 'مؤشر الزيارات عبر السنوات' : 'Visits Indicator Over Years'}
         </h4>
-        <p className="text-[10px] text-slate-400 mb-4">{isAr ? 'قياس معدل النمو وزيادة الطلب على المنشآت الإقليمية' : 'Annual monitoring scale showing health infrastructure capacity increase'}</p>
         <div className="h-72">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={yearTrendData}>
@@ -300,7 +299,7 @@ export function WilayatPage({ data, lang, theme }: WilayatPageProps) {
       {/* WILAYAT LEAGUE TABLE RANKINGS */}
       <div className={`${styles.innerCardBg}`}>
         <h4 className={`text-xs font-bold mb-4 ${styles.textMain}`}>
-          {isAr ? 'جدول ترتيب الولايات الموثق' : 'Geographic League Ranking Matrix'}
+          {isAr ? 'ترتيب الولايات حسب عدد المترددين' : 'Wilayats Ranking by Number of Visitors'}
         </h4>
         
         <div className="space-y-3.5">

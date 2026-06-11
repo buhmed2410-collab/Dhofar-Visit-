@@ -88,10 +88,10 @@ export function Sidebar({
   const sTheme = sidebarThemes[theme] || sidebarThemes.immersive;
 
   const menuItems = [
-    { id: 'overview', icon: <BarChart3 className="w-5 h-5" />, ar: 'المؤشرات الصحية', en: 'Health Indicators' },
-    { id: 'wilayat', icon: <Map className="w-5 h-5" />, ar: 'حسب الولاية', en: 'By Wilayat' },
+    { id: 'overview', icon: <BarChart3 className="w-5 h-5" />, ar: 'المؤشرات العامة', en: 'General Indicators' },
+    { id: 'wilayat', icon: <Map className="w-5 h-5" />, ar: 'المترددين حسب الولايات', en: 'Visitors by Wilayat' },
     { id: 'estab', icon: <Building2 className="w-5 h-5" />, ar: 'المؤسسات الصحية', en: 'Health Facilities' },
-    { id: 'visit', icon: <Activity className="w-5 h-5" />, ar: 'أنواع الزيارة', en: 'Visit Types' },
+    { id: 'visit', icon: <Activity className="w-5 h-5" />, ar: 'التوزيع حسب نوع الزيارة', en: 'Distribution by Visit Type' },
     { id: 'year', icon: <Calendar className="w-5 h-5" />, ar: 'حسب السنوات', en: 'By Year' },
     { id: 'month', icon: <CalendarDays className="w-5 h-5" />, ar: 'حسب الأشهر', en: 'By Month' },
     { id: 'workday', icon: <Clock className="w-5 h-5" />, ar: 'أيام العمل والشفتات', en: 'Work Days & Shifts' },
@@ -111,18 +111,20 @@ export function Sidebar({
         </div>
         <h2 className="text-sm font-bold leading-relaxed mb-1">
           {isAr ? (
-            <>المؤشرات الصحية<br />محافظة ظفار</>
+            <>منصة مؤشرات المترددين<br />محافظة ظفار</>
           ) : (
-            <>Health Indicators<br />Dhofar Governorate</>
+            <>Dhofar Visitors<br />Indicators Platform</>
           )}
         </h2>
-        <p className={`text-[10px] font-mono ${sTheme.textMuted}`}>2023 – 2025</p>
         
-        <div className={`mt-3 pt-3 border-t w-full flex flex-col gap-0.5 text-[9px] font-semibold ${sTheme.headerBorder}`}>
-          <span className="text-sky-550">
-            {isAr ? 'دائرة التخطيط والتنظيم الصحي' : 'Planning & Health Org Dept'}
+        <div className={`mt-3 pt-3 border-t w-full flex flex-col gap-1 text-[9px] font-semibold ${sTheme.headerBorder}`}>
+          <span className="text-sky-550/95 leading-tight">
+            {isAr ? 'المديرية العامة للخدمات الصحية بظفار' : 'Directorate General of Health Services in Dhofar'}
           </span>
-          <span className={`${sTheme.textMuted}`}>
+          <span className="text-sky-550/90 leading-tight">
+            {isAr ? 'دائرة التخطيط والتنظيم الصحي' : 'Department of Planning & Health Organization'}
+          </span>
+          <span className={`${sTheme.textMuted} leading-tight`}>
             {isAr ? 'إدارة المعلومات الصحية' : 'Health Information Department'}
           </span>
         </div>

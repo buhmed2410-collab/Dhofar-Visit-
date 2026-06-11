@@ -185,7 +185,7 @@ export function OverviewPage({ data, lang, theme }: OverviewPageProps) {
         <div>
           <h2 className={`text-xl font-black flex items-center gap-2 ${styles.textMain}`}>
             <span>📊</span>
-            <span>{isAr ? 'لوحة المؤشرات العامة' : 'General Health Indicators'}</span>
+            <span>{isAr ? 'المؤشرات العامة' : 'General Indicators'}</span>
           </h2>
           <p className={`text-xs mt-1 ${styles.textMuted}`}>
             {isAr 
@@ -378,7 +378,7 @@ export function OverviewPage({ data, lang, theme }: OverviewPageProps) {
         {/* Wilayat Distribution */}
         <div className={`${styles.innerCardBg}`}>
           <h4 className={`text-xs font-bold mb-1 ${styles.textMain}`}>
-            {isAr ? 'توزيع التردد الطبي حسب ولايات ظفار' : 'Visits Distribution by Wilayat'}
+            {isAr ? 'توزيع المترددين حسب الولايات' : 'Distribution of Visitors by Wilayat'}
           </h4>
           <p className="text-[10px] text-slate-400 mb-3">{isAr ? 'مستويات الضغط في المقاطعات الصحية' : 'Governorate localized operational density'}</p>
           <div className="h-64">
@@ -419,7 +419,7 @@ export function OverviewPage({ data, lang, theme }: OverviewPageProps) {
         {/* Yearly Bar Performance */}
         <div className={`${styles.innerCardBg}`}>
           <h4 className={`text-xs font-bold mb-1 ${styles.textMain}`}>
-            {isAr ? 'المقارنة وأبحاث النمو السنوي' : 'Annual Attendance Performance'}
+            {isAr ? 'المترددين حسب السنوات' : 'Visitors by Year'}
           </h4>
           <p className="text-[10px] text-slate-400 mb-3">{isAr ? 'محور إجمالي التردد للمسارات الزمنية' : 'Inter-annual comparison of historical database records'}</p>
           <div className="h-64">
@@ -449,7 +449,7 @@ export function OverviewPage({ data, lang, theme }: OverviewPageProps) {
         {/* Visit Types */}
         <div className={`${styles.innerCardBg}`}>
           <h4 className={`text-xs font-bold mb-3 ${styles.textMain}`}>
-            {isAr ? 'طبيعة الزيارات العلاجية' : 'Visit Encounter Typologies'}
+            {isAr ? 'التوزيع حسب نوع الزيارة' : 'Distribution by Visit Type'}
           </h4>
           <div className="h-44">
             <ResponsiveContainer width="100%" height="100%">
@@ -481,7 +481,7 @@ export function OverviewPage({ data, lang, theme }: OverviewPageProps) {
         {/* Shifts */}
         <div className={`${styles.innerCardBg}`}>
           <h4 className={`text-xs font-bold mb-3 ${styles.textMain}`}>
-            {isAr ? 'تقسيم النوبات الطبية (الشفتات)' : 'Clinical Daily Shift Load'}
+            {isAr ? 'التوزيع حسب الشفتات' : 'Distribution by Shifts'}
           </h4>
           <div className="h-44">
             <ResponsiveContainer width="100%" height="100%">
@@ -513,7 +513,7 @@ export function OverviewPage({ data, lang, theme }: OverviewPageProps) {
         {/* Holidays */}
         <div className={`${styles.innerCardBg}`}>
           <h4 className={`text-xs font-bold mb-3 ${styles.textMain}`}>
-            {isAr ? 'ضغط العمل (أيام الدام والفرص)' : 'Days Matrix workload'}
+            {isAr ? 'التوزيع حسب أيام العمل' : 'Distribution by Workdays'}
           </h4>
           <div className="h-44">
             <ResponsiveContainer width="100%" height="100%">

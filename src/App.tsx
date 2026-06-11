@@ -437,12 +437,20 @@ export default function App() {
               🇴🇲
             </div>
             <div>
-              <h1 className={`text-sm md:text-base font-black tracking-tight select-none ${currentThemeStyles.headerText}`}>
-                {isAr ? 'تطبيق لوحة مؤشرات صحة ظفار الموثق' : 'Dhofar Health Indicators Dashboard'}
+              <h1 className={`text-xs md:text-sm lg:text-base font-black tracking-tight select-none ${currentThemeStyles.headerText}`}>
+                {isAr ? 'منصة مؤشرات المترددين بمحافظة ظفار' : 'Dhofar Visitors Indicators Platform'}
               </h1>
-              <p className={`text-[9px] md:text-[10px] font-bold leading-none mt-0.5 select-none ${currentThemeStyles.headerDesc}`}>
-                {isAr ? 'المديرية العامة للخدمات الصحية بمحافظة ظفار' : 'Directorate General of Health Services (DGHS) - Dhofar'}
-              </p>
+              <div className="flex flex-col gap-1 mt-1 select-none">
+                <p className={`text-[8px] md:text-[9px] lg:text-[10px] font-bold leading-none ${currentThemeStyles.headerDesc}`}>
+                  {isAr ? 'المديرية العامة للخدمات الصحية بظفار' : 'Directorate General of Health Services in Dhofar'}
+                </p>
+                <p className={`text-[8px] md:text-[9px] lg:text-[10px] font-bold leading-none opacity-85 ${currentThemeStyles.headerDesc}`}>
+                  {isAr ? 'دائرة التخطيط والتنظيم الصحي' : 'Department of Planning & Health Organization'}
+                </p>
+                <p className={`text-[8px] md:text-[9px] lg:text-[10px] font-bold leading-none opacity-75 ${currentThemeStyles.headerDesc}`}>
+                  {isAr ? 'إدارة المعلومات الصحية' : 'Health Information Department'}
+                </p>
+              </div>
             </div>
           </div>
 
