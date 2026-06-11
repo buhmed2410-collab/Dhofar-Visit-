@@ -82,11 +82,10 @@ export function EstabPage({ data, lang, theme }: EstabPageProps) {
     .sort((a, b) => b.value - a.value);
 
   const totalScopeSum = sortedFacilities.reduce((a, b) => a + b.value, 0) || 1;
-  const top15 = sortedFacilities.slice(0, 15);
   const maxVal = sortedFacilities[0]?.value || 1;
 
-  // Chart data form (renaming if too long)
-  const chartData = [...top15].reverse().map(f => ({
+  // Chart data form (renaming if too long) - showing all facilities in descending order
+  const chartData = [...sortedFacilities].reverse().map(f => ({
     rawName: f.name,
     displayName: f.name.length > 25 ? f.name.slice(0, 24) + '…' : f.name,
     value: f.value
@@ -100,11 +99,8 @@ export function EstabPage({ data, lang, theme }: EstabPageProps) {
           <div>
             <h2 className={`text-xl font-black flex items-center gap-2 ${styles.textMain}`}>
               <Building2 className="w-5 h-5 text-sky-400" />
-              <span>{isAr ? 'احصائيات الرعاية والمنشآت الصحية' : 'Health Facilities Performance'}</span>
+              <span>{isAr ? 'تحليل المترددين حسب المؤسسات الصحية' : 'Analysis of Visitors by Health Facilities'}</span>
             </h2>
-            <p className={`text-xs mt-1 ${styles.textMuted}`}>
-              {isAr ? 'تقييم الحصص التشغيلية والأداء العيادي لـ 44 مؤسسة صحية بظفار.' : 'Compare hospital workload indices for Dhofar’s 44 health facilities.'}
-            </p>
           </div>
 
           {/* Selectors grid */}
@@ -183,23 +179,20 @@ export function EstabPage({ data, lang, theme }: EstabPageProps) {
       </div>
 
       {/* CHARTS CONTAINER */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="flex flex-col gap-4">
         
-        {/* Top 15 Facilities Horizontal Bar */}
-        <div className={`${styles.innerCardBg} lg:col-span-2`}>
+        {/* Top Facilities Horizontal Bar */}
+        <div className={`${styles.innerCardBg} w-full`}>
           <div className="mb-4">
             <h4 className={`text-xs font-bold ${styles.textMain}`}>
               {isAr 
-                ? `أعلى المؤسسات الطبية ضغطاً (مجموع من أصل ${sortedFacilities.length} منشأة)` 
-                : `Top medical hubs loading (of total ${sortedFacilities.length} facilities)`
+                ? 'أعلى المؤسسات الصحية تردداً' 
+                : 'Highest Visited Health Facilities'
               }
             </h4>
-            <p className="text-[10px] text-slate-400 mt-0.5">
-              {isAr ? 'إجمالي المراجعات الطبية المكتشفة طبقاً للتصفية' : 'Case records loaded into chosen clinical units'}
-            </p>
           </div>
 
-          <div className="h-[430px]">
+          <div style={{ height: `${Math.max(550, sortedFacilities.length * 24)}px` }}>
             {chartData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData} layout="vertical" margin={{ left: 10, right: 10, top: 0, bottom: 0 }}>
@@ -227,13 +220,12 @@ export function EstabPage({ data, lang, theme }: EstabPageProps) {
         </div>
 
         {/* Capacity Loading Progress indicators */}
-        <div className={`${styles.innerCardBg} flex flex-col`}>
+        <div className={`${styles.innerCardBg} w-full flex flex-col`}>
           <div className="mb-4">
             <h4 className={`text-xs font-bold ${styles.textMain}`}>{isAr ? 'الترتيب التنازلي التراكمي' : 'Descending Capacity Load'}</h4>
-            <p className="text-[10px] text-slate-400 mt-0.5">{isAr ? 'مقارنة الحجم الإجمالي بمعدل الذروة' : 'Checkup ratios sorted by maximum hub limits'}</p>
           </div>
 
-          <div className="flex-1 overflow-y-auto space-y-3 max-h-[400px] pr-1.5 custom-scrollbar">
+          <div className="flex-1 space-y-3 pr-1.5">
             {sortedFacilities.length > 0 ? (
               sortedFacilities.map((f, i) => (
                 <div key={f.name} className="space-y-1">
@@ -264,18 +256,17 @@ export function EstabPage({ data, lang, theme }: EstabPageProps) {
             )}
           </div>
         </div>
-      </div>
 
-      {/* DETAILED FACILITY STATISTICAL TABLE */}
-      <div className={`${styles.innerCardBg}`}>
-        <div className={`flex items-center gap-2 mb-4 border-b pb-3 ${styles.border}`}>
-          <TableProperties className="w-5 h-5 text-indigo-400" />
-          <h4 className={`text-xs font-bold ${styles.textMain}`}>
-            {isAr ? 'المصفوفة الاحصائية التفصيلية للمنشآت في ظفار' : 'Dhofar Healthcare Facilities Database Index'}
-          </h4>
-        </div>
+        {/* DETAILED FACILITY STATISTICAL TABLE */}
+        <div className={`${styles.innerCardBg} w-full`}>
+          <div className={`flex items-center gap-2 mb-4 border-b pb-3 ${styles.border}`}>
+            <TableProperties className="w-5 h-5 text-indigo-400" />
+            <h4 className={`text-xs font-bold ${styles.textMain}`}>
+              {isAr ? 'توزيع المترددين حسب المؤسسات و نسبة المترددين من الاجمالي' : 'Distribution of Visitors by Facilities & % of Total Visitors'}
+            </h4>
+          </div>
 
-        <div className="overflow-x-auto w-full custom-scrollbar">
+          <div className="overflow-x-auto w-full custom-scrollbar">
           <table className="min-w-full text-xs font-sans">
             <thead>
               <tr className={`border-b text-right ltr:text-left select-none ${styles.border} ${styles.tableThBg}`}>
@@ -311,5 +302,6 @@ export function EstabPage({ data, lang, theme }: EstabPageProps) {
         </div>
       </div>
     </div>
-  );
+  </div>
+);
 }
