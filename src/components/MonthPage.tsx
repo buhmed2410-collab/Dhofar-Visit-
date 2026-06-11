@@ -128,9 +128,6 @@ export function MonthPage({ data, lang, theme }: MonthPageProps) {
               <CalendarDays className="w-5 h-5 text-sky-450" />
               <span>{isAr ? 'المترددين حسب الشهر' : 'Visitors by Month'}</span>
             </h2>
-            <p className={`text-xs mt-1 ${styles.textMuted}`}>
-              {isAr ? 'دراسة التذبذبات المناخية (الخريف) وتأثيرها على توافد المنشآت الطبية.' : 'Evaluate patient checkup fluctuations relative to Omani monthly seasons.'}
-            </p>
           </div>
 
           {/* Filtering dropdown selections */}

@@ -115,7 +115,7 @@ export function WorkdayPage({ data, lang, theme }: WorkdayPageProps) {
               <span>{isAr ? 'المترددين حسب أيام العمل والشفت' : 'Visitors by Work Days & Shifts'}</span>
             </h2>
             <p className={`text-xs mt-1 ${styles.textMuted}`}>
-              {isAr ? 'مراقبة الكثافة التشغيلية للشفت الصباحي والمسائي والحرجة في عمان.' : 'Optimize clinic resources by monitoring day matrices and shift allocation rates.'}
+              {isAr ? 'مراقبة الكثافة التشغيلية' : 'Optimize clinic resources by monitoring day matrices and shift allocation rates.'}
             </p>
           </div>
 
@@ -358,7 +358,7 @@ export function WorkdayPage({ data, lang, theme }: WorkdayPageProps) {
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={wilShiftData}>
               <CartesianGrid strokeDasharray="3 3" stroke={styles.gridStroke} />
-              <XAxis dataKey="name" stroke="#64748b" fontSize={9} />
+              <XAxis dataKey="name" stroke="#64748b" fontSize={8} interval={0} />
               <YAxis stroke="#64748b" fontSize={9} tickFormatter={(v) => v >= 1000000 ? `${(v/1000000).toFixed(1)}M` : `${v/1000}k`} />
               <Tooltip 
                 contentStyle={{ backgroundColor: styles.tooltipBg, borderColor: styles.tooltipBorder, borderRadius: '8px' }}
