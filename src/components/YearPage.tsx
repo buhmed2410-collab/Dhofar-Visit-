@@ -123,7 +123,7 @@ export function YearPage({ data, lang, theme }: YearPageProps) {
           <div>
             <h2 className={`text-xl font-black flex items-center gap-2 ${styles.textMain}`}>
               <Calendar className="w-5 h-5 text-sky-450" />
-              <span>{isAr ? 'تحليل المترددين حسب السنوات' : 'Analysis of Visitors by Year'}</span>
+              <span>{isAr ? 'المترددين حسب السنوات' : 'Visitors by Year'}</span>
             </h2>
             <p className={`text-xs mt-1 ${styles.textMuted}`}>
               {isAr ? 'قياس نسبة التمدد ومعدلات التغير ونمو التراكم السنوي بظفار.' : 'Track clinical checkups growth rate and annual performance shifts.'}

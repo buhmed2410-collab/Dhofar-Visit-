@@ -275,10 +275,9 @@ export function MonthPage({ data, lang, theme }: MonthPageProps) {
 
       {/* CLIMATIC MONTHLY BAR VISUALIZER */}
       <div className={`${styles.innerCardBg}`}>
-        <h4 className={`text-xs font-bold mb-1 ${styles.textMain}`}>
-          {isAr ? 'مستويات التوافد على مدار العام' : 'Patient Attendance across 12-Month Cycles'}
+        <h4 className={`text-xs font-bold mb-4 ${styles.textMain}`}>
+          {isAr ? 'المترددين حسب الشهر' : 'Visitors by Month'}
         </h4>
-        <p className="text-[10px] text-slate-400 mb-3">{isAr ? 'أرقام مراجعات الملحق الإقليمي مقسمة تراكمياً' : 'Monthly clinical visits representation highlighting constraints'}</p>
         <div className="h-68">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={barData} barSize={34}>
@@ -335,10 +334,9 @@ export function MonthPage({ data, lang, theme }: MonthPageProps) {
 
         {/* Multi-series seasonality comparison line */}
         <div className={`${styles.innerCardBg}`}>
-          <h4 className={`text-xs font-bold mb-1 ${styles.textMain}`}>
+          <h4 className={`text-xs font-bold mb-4 ${styles.textMain}`}>
             {isAr ? 'مقارنة تذبذب المراجعة الطبية بين السنوات' : 'Year-on-Year Climatic Comparison'}
           </h4>
-          <p className="text-[10px] text-slate-400 mb-3">{isAr ? 'مسارات نمو المسارات التشغيلية للسنوات النشطة' : 'Lines mapping historical seasonal curves side-by-side'}</p>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={monthlySeasonLineData}>

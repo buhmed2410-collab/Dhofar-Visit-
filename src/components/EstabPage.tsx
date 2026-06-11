@@ -99,7 +99,7 @@ export function EstabPage({ data, lang, theme }: EstabPageProps) {
           <div>
             <h2 className={`text-xl font-black flex items-center gap-2 ${styles.textMain}`}>
               <Building2 className="w-5 h-5 text-sky-400" />
-              <span>{isAr ? 'تحليل المترددين حسب المؤسسات' : 'Analysis of Visitors by Facilities'}</span>
+              <span>{isAr ? 'المترددين حسب المؤسسات' : 'Visitors by Facilities'}</span>
             </h2>
           </div>
 

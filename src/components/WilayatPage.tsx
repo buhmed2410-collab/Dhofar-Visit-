@@ -105,7 +105,7 @@ export function WilayatPage({ data, lang, theme }: WilayatPageProps) {
           <div>
             <h2 className={`text-xl font-black flex items-center gap-2 ${styles.textMain}`}>
               <Map className="w-5 h-5 text-sky-400" />
-              <span>{isAr ? 'تحليل المترددين بالولايات' : 'Wilayat Geodemographic Analysis'}</span>
+              <span>{isAr ? 'المترددين بالولايات' : 'Visitors by Wilayat'}</span>
             </h2>
             <p className={`text-xs mt-1 ${styles.textMuted}`}>
               {isAr ? 'مراقبة الكثافة التشغيلية والفوارق الطبية بين ولايات ظفار.' : 'Monitor operational load and regional checkups comparison.'}

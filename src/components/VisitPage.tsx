@@ -139,7 +139,7 @@ export function VisitPage({ data, lang, theme }: VisitPageProps) {
           <div>
             <h2 className={`text-xl font-black flex items-center gap-2 ${styles.textMain}`}>
               <Activity className="w-5 h-5 text-sky-450" />
-              <span>{isAr ? 'تحليل المترددين حسب نوع الزيارة' : 'Analysis of Visitors by Visit Type'}</span>
+              <span>{isAr ? 'المترددين حسب نوع الزيارة' : 'Visitors by Visit Type'}</span>
             </h2>
           </div>
 
@@ -314,7 +314,7 @@ export function VisitPage({ data, lang, theme }: VisitPageProps) {
         {/* Visit Ratio sector donut */}
         <div className={`${styles.innerCardBg}`}>
           <h4 className={`text-xs font-bold mb-4 ${styles.textMain}`}>
-            {isAr ? 'النسبة الهيكلية لمكونات التوافد' : 'Checkup Allocation Ratios'}
+            {isAr ? 'النسبة الهيكلية' : 'Checkup Allocation Ratios'}
           </h4>
           <div className="h-64">
             {pieData.length > 0 ? (

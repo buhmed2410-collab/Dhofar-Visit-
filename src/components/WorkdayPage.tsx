@@ -271,7 +271,7 @@ export function WorkdayPage({ data, lang, theme }: WorkdayPageProps) {
         {/* Shfiting Pie */}
         <div className={`${styles.innerCardBg}`}>
           <h4 className={`text-xs font-bold mb-1 ${styles.textMain}`}>
-            {isAr ? 'الهيكلية النسبية للنوبات (الشفتات)' : 'Daily Shifts Ratio Breakdown'}
+            {isAr ? 'الهيكلية النسبية' : 'Daily Shifts Ratio Breakdown'}
           </h4>
           <p className="text-[10px] text-slate-400 mb-3">{isAr ? 'تقسيم ضغط توافد المراجعين بين الشفت الصباحي والمسائي والليل' : 'Clinical load divisions matching select constraints'}</p>
           <div className="h-64">
@@ -351,10 +351,9 @@ export function WorkdayPage({ data, lang, theme }: WorkdayPageProps) {
 
       {/* SHIFTS DISTRIBUTION MATRIX ACROSS WILAYATS */}
       <div className={`${styles.innerCardBg}`}>
-        <h4 className={`text-xs font-bold mb-1 ${styles.textMain}`}>
-          {isAr ? 'تأثير وعلاقات النوبات العلاجية بالولايات' : 'Clinical Daily Shifts Load Geographies Comparison'}
+        <h4 className={`text-xs font-bold mb-4 ${styles.textMain}`}>
+          {isAr ? 'التوزيع حسب الشفتات في الولايات' : 'Shifts Distribution by Wilayats'}
         </h4>
-        <p className="text-[10px] text-slate-400 mb-4">{isAr ? 'تشريح تفصيلي لضغط الشفتات الصباحية والمسائية واليلية بالولاية' : 'Compare shifts pressure concentrations across Dhofar jurisdictions in view'}</p>
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={wilShiftData}>
