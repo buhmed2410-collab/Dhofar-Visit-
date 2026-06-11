@@ -139,11 +139,8 @@ export function VisitPage({ data, lang, theme }: VisitPageProps) {
           <div>
             <h2 className={`text-xl font-black flex items-center gap-2 ${styles.textMain}`}>
               <Activity className="w-5 h-5 text-sky-450" />
-              <span>{isAr ? 'المترددين حسب نوع الزيارة' : 'Visitors by Visit Type'}</span>
+              <span>{isAr ? 'تحليل المترددين حسب نوع الزيارة' : 'Analysis of Visitors by Visit Type'}</span>
             </h2>
-            <p className={`text-xs mt-1 ${styles.textMuted}`}>
-              {isAr ? 'تأطير المترددين على مستوى العيادات النهارية، وح حالات الطوارئ الموجهة.' : 'Stratify patient checkups by Outpatient, Emergency, and Community spheres.'}
-            </p>
           </div>
 
           {/* Filtering cascading grid */}
@@ -290,10 +287,9 @@ export function VisitPage({ data, lang, theme }: VisitPageProps) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Visit Types comparison bar */}
         <div className={`${styles.innerCardBg}`}>
-          <h4 className={`text-xs font-bold mb-1 ${styles.textMain}`}>
+          <h4 className={`text-xs font-bold mb-4 ${styles.textMain}`}>
             {isAr ? 'مقارنة مسارات التردد العلاجي' : 'Checkup Pathways Volume Comparison'}
           </h4>
-          <p className="text-[10px] text-slate-400 mb-3">{isAr ? 'تمثيل هندسي لحجم التوافد المباشر' : 'Graphical checkup streams comparisons'}</p>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={barData} barSize={40}>
@@ -317,10 +313,9 @@ export function VisitPage({ data, lang, theme }: VisitPageProps) {
 
         {/* Visit Ratio sector donut */}
         <div className={`${styles.innerCardBg}`}>
-          <h4 className={`text-xs font-bold mb-1 ${styles.textMain}`}>
+          <h4 className={`text-xs font-bold mb-4 ${styles.textMain}`}>
             {isAr ? 'النسبة الهيكلية لمكونات التوافد' : 'Checkup Allocation Ratios'}
           </h4>
-          <p className="text-[10px] text-slate-400 mb-3">{isAr ? 'تقييم الحصص النسبية للت triage الطبي' : 'Proportional sector load values'}</p>
           <div className="h-64">
             {pieData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
@@ -359,7 +354,7 @@ export function VisitPage({ data, lang, theme }: VisitPageProps) {
       {/* CLUSTERED GEOGRAPHIC STACKED COMPARISON */}
       <div className={`${styles.innerCardBg}`}>
         <h4 className={`text-xs font-bold mb-1 ${styles.textMain}`}>
-          {isAr ? 'تأثير الأولوية الطبية في الولايات' : 'Visit Triage Proportions Pack across Wilayats'}
+          {isAr ? 'التوزيع حسب نوع الزيارة للولايات' : 'Distribution by Visit Type for Wilayats'}
         </h4>
         <p className="text-[10px] text-slate-400 mb-4">{isAr ? 'تشريح التدخلات والخدمة الطبية لكل ولاية إقليمية' : 'Compare emergency load versus routine outpatient clinics geographically'}</p>
         <div className="h-80">

@@ -9,7 +9,7 @@ export const WILAYAT_AR: Record<string, string> = {
   'RAKHYUT': 'رخيوت',
   'SADAH': 'سدح',
   'SHALIM WA JUZUR AL HALLANIYAT': 'شليم وجزر الحلانيات',
-  'DALKUT': 'دلكوت',
+  'DALKUT': 'ضلكوت',
   'MAQSHIN': 'مقشن'
 };
 

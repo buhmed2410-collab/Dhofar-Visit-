@@ -123,7 +123,7 @@ export function YearPage({ data, lang, theme }: YearPageProps) {
           <div>
             <h2 className={`text-xl font-black flex items-center gap-2 ${styles.textMain}`}>
               <Calendar className="w-5 h-5 text-sky-450" />
-              <span>{isAr ? 'المترددين حسب السنوات' : 'Visitors by Year'}</span>
+              <span>{isAr ? 'تحليل المترددين حسب السنوات' : 'Analysis of Visitors by Year'}</span>
             </h2>
             <p className={`text-xs mt-1 ${styles.textMuted}`}>
               {isAr ? 'قياس نسبة التمدد ومعدلات التغير ونمو التراكم السنوي بظفار.' : 'Track clinical checkups growth rate and annual performance shifts.'}
@@ -247,10 +247,9 @@ export function YearPage({ data, lang, theme }: YearPageProps) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Chronological bar comparison */}
         <div className={`${styles.innerCardBg}`}>
-          <h4 className={`text-xs font-bold mb-1 ${styles.textMain}`}>
-            {isAr ? 'علاوة الطلب والتردد السنوي' : 'Annual Visited volume check'}
+          <h4 className={`text-xs font-bold mb-4 ${styles.textMain}`}>
+            {isAr ? 'مؤشر المترددين بالسنوات' : 'Visitors Indicator by Years'}
           </h4>
-          <p className="text-[10px] text-slate-400 mb-3">{isAr ? 'الحجم العام للتردد الطبي تحت الفلترة التراكمية' : 'Case values comparison matching your query'}</p>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={chartCompData} barSize={40}>
@@ -274,10 +273,9 @@ export function YearPage({ data, lang, theme }: YearPageProps) {
 
         {/* Chrono donut values */}
         <div className={`${styles.innerCardBg}`}>
-          <h4 className={`text-xs font-bold mb-1 ${styles.textMain}`}>
-            {isAr ? 'حصص التوافد الطرازي' : 'In-scope chronological share'}
+          <h4 className={`text-xs font-bold mb-4 ${styles.textMain}`}>
+            {isAr ? 'التوزيع الهيكلي بالسنوات' : 'Structural Distribution by Years'}
           </h4>
-          <p className="text-[10px] text-slate-400 mb-3">{isAr ? 'انفصال المجموع التشغيلي طبقاً للأعوام' : 'Ratios of selected annual slots'}</p>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -343,7 +341,7 @@ export function YearPage({ data, lang, theme }: YearPageProps) {
       {/* WILAYAT COMPARATIVE BAR MATRIX */}
       <div className={`${styles.innerCardBg}`}>
         <h4 className={`text-xs font-bold mb-1 ${styles.textMain}`}>
-          {isAr ? 'مقارنة الولايات تفصيلياً حسب السنة' : 'Wilayat Case comparison by Chronological Target'}
+          {isAr ? 'مقارنة الولايات حسب السنة' : 'Comparison of Wilayats by Year'}
         </h4>
         <p className="text-[10px] text-slate-400 mb-4">{isAr ? 'تشريح تطور الزيارات الجغرافي السنوي المباشر' : 'Annual medical load distribution metrics comparing side-by-side'}</p>
         <div className="h-80">

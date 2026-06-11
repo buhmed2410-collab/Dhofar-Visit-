@@ -90,7 +90,7 @@ export function Sidebar({
   const menuItems = [
     { id: 'overview', icon: <BarChart3 className="w-5 h-5" />, ar: 'المؤشرات العامة', en: 'General Indicators' },
     { id: 'wilayat', icon: <Map className="w-5 h-5" />, ar: 'المترددين حسب الولايات', en: 'Visitors by Wilayat' },
-    { id: 'estab', icon: <Building2 className="w-5 h-5" />, ar: 'المترددين حسب المؤسسات الصحية', en: 'Visitors by Health Facilities' },
+    { id: 'estab', icon: <Building2 className="w-5 h-5" />, ar: 'المترددين حسب المؤسسات', en: 'Visitors by Facilities' },
     { id: 'visit', icon: <Activity className="w-5 h-5" />, ar: 'المترددين حسب نوع الزيارة', en: 'Visitors by Visit Type' },
     { id: 'year', icon: <Calendar className="w-5 h-5" />, ar: 'المترددين حسب السنوات', en: 'Visitors by Year' },
     { id: 'month', icon: <CalendarDays className="w-5 h-5" />, ar: 'المترددين حسب الشهر', en: 'Visitors by Month' },
