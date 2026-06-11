@@ -91,10 +91,10 @@ export function Sidebar({
     { id: 'overview', icon: <BarChart3 className="w-5 h-5" />, ar: 'المؤشرات العامة', en: 'General Indicators' },
     { id: 'wilayat', icon: <Map className="w-5 h-5" />, ar: 'المترددين حسب الولايات', en: 'Visitors by Wilayat' },
     { id: 'estab', icon: <Building2 className="w-5 h-5" />, ar: 'المترددين حسب المؤسسات الصحية', en: 'Visitors by Health Facilities' },
-    { id: 'visit', icon: <Activity className="w-5 h-5" />, ar: 'التوزيع حسب نوع الزيارة', en: 'Distribution by Visit Type' },
-    { id: 'year', icon: <Calendar className="w-5 h-5" />, ar: 'حسب السنوات', en: 'By Year' },
-    { id: 'month', icon: <CalendarDays className="w-5 h-5" />, ar: 'حسب الأشهر', en: 'By Month' },
-    { id: 'workday', icon: <Clock className="w-5 h-5" />, ar: 'أيام العمل والشفتات', en: 'Work Days & Shifts' },
+    { id: 'visit', icon: <Activity className="w-5 h-5" />, ar: 'المترددين حسب نوع الزيارة', en: 'Visitors by Visit Type' },
+    { id: 'year', icon: <Calendar className="w-5 h-5" />, ar: 'المترددين حسب السنوات', en: 'Visitors by Year' },
+    { id: 'month', icon: <CalendarDays className="w-5 h-5" />, ar: 'المترددين حسب الشهر', en: 'Visitors by Month' },
+    { id: 'workday', icon: <Clock className="w-5 h-5" />, ar: 'المترددين حسب أيام العمل والشفت', en: 'Visitors by Work Days & Shifts' },
   ] as const;
 
   // Responsive dynamic styling for solid layout

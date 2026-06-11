@@ -125,8 +125,8 @@ export function MonthPage({ data, lang, theme }: MonthPageProps) {
         <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
           <div>
             <h2 className={`text-xl font-black flex items-center gap-2 ${styles.textMain}`}>
-              <CalendarDays className="w-5 h-5 text-sky-400" />
-              <span>{isAr ? 'علاقات وتأثير الموسمية الشهرية' : 'Seasonal Patient Flow Analysis'}</span>
+              <CalendarDays className="w-5 h-5 text-sky-450" />
+              <span>{isAr ? 'المترددين حسب الشهر' : 'Visitors by Month'}</span>
             </h2>
             <p className={`text-xs mt-1 ${styles.textMuted}`}>
               {isAr ? 'دراسة التذبذبات المناخية (الخريف) وتأثيرها على توافد المنشآت الطبية.' : 'Evaluate patient checkup fluctuations relative to Omani monthly seasons.'}

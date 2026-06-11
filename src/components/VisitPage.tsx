@@ -138,8 +138,8 @@ export function VisitPage({ data, lang, theme }: VisitPageProps) {
         <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
           <div>
             <h2 className={`text-xl font-black flex items-center gap-2 ${styles.textMain}`}>
-              <Activity className="w-5 h-5 text-sky-400" />
-              <span>{isAr ? 'تصنيف المراجعات حسب الأولوية الطبية' : 'Visit Triage Priority Analysis'}</span>
+              <Activity className="w-5 h-5 text-sky-450" />
+              <span>{isAr ? 'المترددين حسب نوع الزيارة' : 'Visitors by Visit Type'}</span>
             </h2>
             <p className={`text-xs mt-1 ${styles.textMuted}`}>
               {isAr ? 'تأطير المترددين على مستوى العيادات النهارية، وح حالات الطوارئ الموجهة.' : 'Stratify patient checkups by Outpatient, Emergency, and Community spheres.'}

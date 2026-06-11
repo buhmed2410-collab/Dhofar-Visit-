@@ -111,8 +111,8 @@ export function WorkdayPage({ data, lang, theme }: WorkdayPageProps) {
         <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
           <div>
             <h2 className={`text-xl font-black flex items-center gap-2 ${styles.textMain}`}>
-              <Clock className="w-5 h-5 text-sky-400" />
-              <span>{isAr ? 'علاقات وتأثير الشيفتات وتصنيف الأيام' : 'Clinical Workloads & Shift Rotations'}</span>
+              <Clock className="w-5 h-5 text-sky-450" />
+              <span>{isAr ? 'المترددين حسب أيام العمل والشفت' : 'Visitors by Work Days & Shifts'}</span>
             </h2>
             <p className={`text-xs mt-1 ${styles.textMuted}`}>
               {isAr ? 'مراقبة الكثافة التشغيلية للشفت الصباحي والمسائي والحرجة في عمان.' : 'Optimize clinic resources by monitoring day matrices and shift allocation rates.'}
