@@ -162,13 +162,13 @@ export function VisitPage({ data, lang, theme }: VisitPageProps) {
 
             {/* Health facility cascading selector */}
             <div className={`border rounded-lg px-2.5 py-1 flex items-center gap-2 ${styles.selectBg} ${styles.selectBorder}`}>
-              <span className={`text-[10px] font-bold ${styles.textMuted}`}>{isAr ? 'المنشأة المحددة:' : 'Clinic Unit:'}</span>
+              <span className={`text-[10px] font-bold ${styles.textMuted}`}>{isAr ? 'المؤسسة المحددة:' : 'Clinic Unit:'}</span>
               <select 
                 value={selectedEstab} 
                 onChange={(e) => setSelectedEstab(e.target.value)}
                 className={`bg-transparent text-xs font-bold outline-none cursor-pointer pr-1 max-w-[140px] ${styles.selectText}`}
               >
-                <option value="ALL" className={styles.selectOptionBg}>{isAr ? 'جميع منشآت الولاية' : 'All in Wilayat'}</option>
+                <option value="ALL" className={styles.selectOptionBg}>{isAr ? 'جميع مؤسسات الولاية' : 'All in Wilayat'}</option>
                 {Object.keys(data.by_wil_estab).map(w => {
                   if (selectedWil !== 'ALL' && w !== selectedWil) return null;
                   return Object.keys(data.by_wil_estab[w] || {}).map(f => (

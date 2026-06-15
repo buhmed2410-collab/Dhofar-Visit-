@@ -110,7 +110,7 @@ export function EstabPage({ data, lang, theme }: EstabPageProps) {
               <Search className="w-3.5 h-3.5 text-slate-400" />
               <input 
                 type="text"
-                placeholder={isAr ? 'بحث عن منشأة...' : 'Search facility...'}
+                placeholder={isAr ? 'بحث عن مؤسسة...' : 'Search facility...'}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className={`bg-transparent text-xs font-semibold outline-none py-0.5 w-full ${styles.selectText}`}
@@ -213,7 +213,7 @@ export function EstabPage({ data, lang, theme }: EstabPageProps) {
               </ResponsiveContainer>
             ) : (
               <div className="h-full flex items-center justify-center text-xs text-slate-400 font-bold">
-                {isAr ? 'لا توجد منشأة تطابق محددات البحث' : 'No facilities found matching details'}
+                {isAr ? 'لا توجد مؤسسة تطابق محددات البحث' : 'No facilities found matching details'}
               </div>
             )}
           </div>
