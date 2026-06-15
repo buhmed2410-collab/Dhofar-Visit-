@@ -9,7 +9,8 @@ import {
   Clock, 
   FolderOpen,
   Palette,
-  Languages
+  Languages,
+  Sparkles
 } from 'lucide-react';
 import { ThemeType, LangType, PageType } from '../types';
 
@@ -95,6 +96,7 @@ export function Sidebar({
     { id: 'year', icon: <Calendar className="w-5 h-5" />, ar: 'المترددين حسب السنوات', en: 'Visitors by Year' },
     { id: 'month', icon: <CalendarDays className="w-5 h-5" />, ar: 'المترددين حسب الشهر', en: 'Visitors by Month' },
     { id: 'workday', icon: <Clock className="w-5 h-5" />, ar: 'المترددين حسب أيام العمل والشفت', en: 'Visitors by Work Days & Shifts' },
+    { id: 'advanced', icon: <Sparkles className="w-5 h-5 animate-pulse text-amber-500" />, ar: 'مؤشرات الاداء و المقارنة', en: 'Advanced Operational Analytics' },
   ] as const;
 
   // Responsive dynamic styling for solid layout

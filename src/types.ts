@@ -135,6 +135,28 @@ export interface NestedEstabHolidayYear {
   };
 }
 
+export interface NestedYearMonthShift {
+  [year: string]: {
+    [month: string]: {
+      '1ST SHIFT (MORNING)'?: number;
+      '2nd SHIFT (AFTERNOON)'?: number;
+      '3RD SHIFT (NIGHT)'?: number;
+    };
+  };
+}
+
+export interface NestedWilayatYearMonthShift {
+  [wilayat: string]: {
+    [year: string]: {
+      [month: string]: {
+        '1ST SHIFT (MORNING)'?: number;
+        '2nd SHIFT (AFTERNOON)'?: number;
+        '3RD SHIFT (NIGHT)'?: number;
+      };
+    };
+  };
+}
+
 export interface DashboardData {
   total: number;
   by_wilayat: WilayatData;
@@ -169,8 +191,11 @@ export interface DashboardData {
   
   by_wil_holiday_year: NestedWilayatHolidayYear;
   by_estab_holiday_year: NestedEstabHolidayYear;
+
+  by_year_month_shift: NestedYearMonthShift;
+  by_wil_year_month_shift: NestedWilayatYearMonthShift;
 }
 
 export type ThemeType = 'immersive' | 'bento' | 'luxury';
 export type LangType = 'ar' | 'en';
-export type PageType = 'overview' | 'wilayat' | 'estab' | 'visit' | 'year' | 'month' | 'workday';
+export type PageType = 'overview' | 'wilayat' | 'estab' | 'visit' | 'year' | 'month' | 'workday' | 'advanced';

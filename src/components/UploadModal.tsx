@@ -243,7 +243,9 @@ export function UploadModal({
       by_wil_shift_year: {},
       by_estab_shift_year: {},
       by_wil_holiday_year: {},
-      by_estab_holiday_year: {}
+      by_estab_holiday_year: {},
+      by_year_month_shift: {},
+      by_wil_year_month_shift: {}
     };
 
     const inc = (obj: any, ...keys: any[]) => {
@@ -294,6 +296,8 @@ export function UploadModal({
       inc(agg.by_estab_shift_year, est, sh, yr, v);
       inc(agg.by_wil_holiday_year, w, hol, yr, v);
       inc(agg.by_estab_holiday_year, est, hol, yr, v);
+      inc(agg.by_year_month_shift, yr, mo, sh, v);
+      inc(agg.by_wil_year_month_shift, w, yr, mo, sh, v);
     });
 
     return agg;

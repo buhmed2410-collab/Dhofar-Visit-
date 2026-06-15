@@ -14,6 +14,7 @@ import { VisitPage } from './components/VisitPage';
 import { YearPage } from './components/YearPage';
 import { MonthPage } from './components/MonthPage';
 import { WorkdayPage } from './components/WorkdayPage';
+import { AdvancedPage } from './components/AdvancedPage';
 
 export default function App() {
   // Theme state: default to 'bento' (Classic Bento Grid theme)
@@ -63,7 +64,15 @@ export default function App() {
     try {
       const saved = localStorage.getItem('dhofar_dashboard_data');
       if (saved) {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        // Heal missing segment metrics from the updated source templates
+        if (!parsed.by_year_month_shift || Object.keys(parsed.by_year_month_shift).length === 0) {
+          parsed.by_year_month_shift = INITIAL_DATA.by_year_month_shift;
+        }
+        if (!parsed.by_wil_year_month_shift) {
+          parsed.by_wil_year_month_shift = INITIAL_DATA.by_wil_year_month_shift || {};
+        }
+        return parsed;
       }
     } catch (e) {
       console.error("Error loading saved dashboard data:", e);
@@ -396,6 +405,33 @@ export default function App() {
         });
       });
 
+      // Merge by_year_month_shift
+      if (!merged.by_year_month_shift) merged.by_year_month_shift = {};
+      Object.entries(newParsedData.by_year_month_shift || {}).forEach(([yr, mMap]) => {
+        if (!merged.by_year_month_shift[yr]) merged.by_year_month_shift[yr] = {};
+        Object.entries(mMap).forEach(([mo, shMap]) => {
+          if (!merged.by_year_month_shift[yr][mo]) merged.by_year_month_shift[yr][mo] = {};
+          Object.entries(shMap).forEach(([sh, v]) => {
+            merged.by_year_month_shift[yr][mo][sh as any] = (merged.by_year_month_shift[yr][mo][sh as any] || 0) + v;
+          });
+        });
+      });
+
+      // Merge by_wil_year_month_shift
+      if (!merged.by_wil_year_month_shift) merged.by_wil_year_month_shift = {};
+      Object.entries(newParsedData.by_wil_year_month_shift || {}).forEach(([w, yrMap]) => {
+        if (!merged.by_wil_year_month_shift[w]) merged.by_wil_year_month_shift[w] = {};
+        Object.entries(yrMap).forEach(([yr, mMap]) => {
+          if (!merged.by_wil_year_month_shift[w][yr]) merged.by_wil_year_month_shift[w][yr] = {};
+          Object.entries(mMap).forEach(([mo, shMap]) => {
+            if (!merged.by_wil_year_month_shift[w][yr][mo]) merged.by_wil_year_month_shift[w][yr][mo] = {};
+            Object.entries(shMap).forEach(([sh, v]) => {
+              merged.by_wil_year_month_shift[w][yr][mo][sh as any] = (merged.by_wil_year_month_shift[w][yr][mo][sh as any] || 0) + v;
+            });
+          });
+        });
+      });
+
       setDashboardData(merged);
     }
   };
@@ -525,6 +561,9 @@ export default function App() {
             )}
             {activeTab === 'workday' && (
               <WorkdayPage data={dashboardData} lang={lang} theme={theme} />
+            )}
+            {activeTab === 'advanced' && (
+              <AdvancedPage data={dashboardData} lang={lang} theme={theme} />
             )}
           </div>
         </main>
