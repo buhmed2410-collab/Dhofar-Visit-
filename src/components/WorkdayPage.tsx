@@ -14,8 +14,9 @@ import {
 } from 'recharts';
 import { Clock, Calendar, Sun, Moon } from 'lucide-react';
 import { DashboardData, LangType, ThemeType } from '../types';
-import { fmt, pct, wName, getAvailableYears, resolveScope } from '../utils';
+import { fmt, pct, wName, getAvailableYears, resolveScope, resolveMonthly } from '../utils';
 import { themeStyles } from '../theme';
+import { MONTHS_AR, MONTHS_EN } from '../data';
 
 interface WorkdayPageProps {
   data: DashboardData;
@@ -185,13 +186,13 @@ export function WorkdayPage({ data, lang, theme }: WorkdayPageProps) {
 
             {/* Shift selector */}
             <div className={`border rounded-lg px-2.5 py-1 flex items-center gap-2 ${styles.selectBg} ${styles.selectBorder}`}>
-              <span className={`text-[10px] font-bold ${styles.textMuted}`}>{isAr ? 'النوبة (الشفت):' : 'Shift:'}</span>
+              <span className={`text-[10px] font-bold ${styles.textMuted}`}>{isAr ? 'الشفت:' : 'Shift:'}</span>
               <select 
                 value={selectedShift} 
                 onChange={(e) => setSelectedShift(e.target.value)}
                 className={`bg-transparent text-xs font-bold outline-none cursor-pointer pr-1 ${styles.selectText}`}
               >
-                <option value="ALL" className={styles.selectOptionBg}>{isAr ? 'جميع النوبات' : 'All Shifts'}</option>
+                <option value="ALL" className={styles.selectOptionBg}>{isAr ? 'جميع الشفتات' : 'All Shifts'}</option>
                 <option value="1ST SHIFT (MORNING)" className={styles.selectOptionBg}>{isAr ? 'الصباحي' : 'Morning Shift'}</option>
                 <option value="2nd SHIFT (AFTERNOON)" className={styles.selectOptionBg}>{isAr ? 'المسائي' : 'Afternoon Shift'}</option>
                 <option value="3RD SHIFT (NIGHT)" className={styles.selectOptionBg}>{isAr ? 'الليلي' : 'Night Shift'}</option>
@@ -248,14 +249,14 @@ export function WorkdayPage({ data, lang, theme }: WorkdayPageProps) {
           <div className={`text-xl font-black font-mono tracking-tight ${styles.textMain}`}>{fmt(morning)}</div>
           <div className="text-[10px] text-slate-400 font-bold mt-2 flex items-center gap-1.5">
             <span className="bg-sky-400/10 text-sky-400 px-1.5 py-0.5 rounded font-mono font-black">{pct(morning, totShift)}</span>
-            <span>{isAr ? 'تمثيل النوب النهارية' : 'of shift patient waves'}</span>
+            <span>{isAr ? 'تمثيل الشفت الصباحي' : 'of shift patient waves'}</span>
           </div>
         </div>
 
         {/* Night active load */}
         <div className={`transition-all select-none ${styles.innerCardBg}`}>
           <div className="flex items-center justify-between text-slate-405 mb-1.5">
-            <span className={`text-xs font-bold ${styles.textMuted}`}>{isAr ? 'نشاط الشفت الليلي الحرج' : 'Night Triage Shifts'}</span>
+            <span className={`text-xs font-bold ${styles.textMuted}`}>{isAr ? 'نشاط الشفت الليلي' : 'Night Triage Shifts'}</span>
             <Moon className="w-4 h-4 text-indigo-400" />
           </div>
           <div className={`text-xl font-black font-mono tracking-tight ${styles.textMain}`}>{fmt(night)}</div>
@@ -302,7 +303,7 @@ export function WorkdayPage({ data, lang, theme }: WorkdayPageProps) {
               </ResponsiveContainer>
             ) : (
               <div className="h-full flex items-center justify-center text-xs text-slate-405 font-bold p-10">
-                {isAr ? 'لا توجد بيانات مطابقة لتصفية النوبة' : 'No available shifts matching current variables'}
+                {isAr ? 'لا توجد بيانات مطابقة لتصفية الشفت' : 'No available shifts matching current variables'}
               </div>
             )}
           </div>
@@ -342,7 +343,7 @@ export function WorkdayPage({ data, lang, theme }: WorkdayPageProps) {
               </ResponsiveContainer>
             ) : (
               <div className="h-full flex items-center justify-center text-xs text-slate-405 font-bold p-10">
-                {isAr ? 'لا توجد بيانات مطابقة لتصفية أيام الدام' : 'No active data matching day types'}
+                {isAr ? 'لا توجد بيانات مطابقة لتصفية أيام الدوام' : 'No active data matching day types'}
               </div>
             )}
           </div>
