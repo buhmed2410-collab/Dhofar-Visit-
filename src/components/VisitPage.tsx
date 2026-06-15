@@ -14,7 +14,7 @@ import {
 } from 'recharts';
 import { Activity, Stethoscope, AlertTriangle, ShieldCheck } from 'lucide-react';
 import { DashboardData, LangType, ThemeType } from '../types';
-import { fmt, pct, wName, getAvailableYears, resolveScope, resolveMonthly } from '../utils';
+import { fmt, pct, wName, mName, getAvailableYears, resolveScope, resolveMonthly } from '../utils';
 import { themeStyles } from '../theme';
 
 interface VisitPageProps {
@@ -48,6 +48,80 @@ export function VisitPage({ data, lang, theme }: VisitPageProps) {
       }
     }
   }, [selectedWil]);
+
+  // Double Period Comparison States
+  const [compYearA, setCompYearA] = useState<string>('2024');
+  const [compSubA, setCompSubA] = useState<string>('Q1');
+  const [compYearB, setCompYearB] = useState<string>('2025');
+  const [compSubB, setCompSubB] = useState<string>('Q1');
+
+  // Helper to compute encounters for high flexibility selection
+  const getPeriodData = (yr: string, subset: string) => {
+    const scope = resolveScope(data, selectedWil, selectedEstab, yr);
+    
+    let monthsList: string[] = [];
+    if (subset === 'ALL') {
+      monthsList = Array.from({ length: 12 }, (_, i) => String(i + 1));
+    } else if (subset === 'Q1') {
+      monthsList = ['1', '2', '3'];
+    } else if (subset === 'Q2') {
+      monthsList = ['4', '5', '6'];
+    } else if (subset === 'Q3') {
+      monthsList = ['7', '8', '9'];
+    } else if (subset === 'Q4') {
+      monthsList = ['10', '11', '12'];
+    } else {
+      monthsList = [subset];
+    }
+
+    const monthlyVals = resolveMonthly(data, selectedWil, selectedEstab, yr);
+    let subsetSum = 0;
+    monthsList.forEach(m => {
+      subsetSum += monthlyVals[parseInt(m) - 1] || 0;
+    });
+
+    const yearSum = Object.values(monthlyVals).reduce((a, b) => a + b, 0) || 1;
+    const ratio = yearSum > 0 ? subsetSum / yearSum : 0;
+
+    return {
+      opd: Math.round((scope.enc.OPD || 0) * ratio),
+      ane: Math.round((scope.enc.ANE || 0) * ratio),
+      com: Math.round((scope.enc.COMMUNITY || 0) * ratio),
+      total: subsetSum
+    };
+  };
+
+  const periodDataA = getPeriodData(compYearA, compSubA);
+  const periodDataB = getPeriodData(compYearB, compSubB);
+
+  // Prepare Recharts bar chart payload
+  const comparisonChartData = [
+    {
+      name: isAr ? 'عيادات OPD' : 'OPD Clinics',
+      valueA: periodDataA.opd,
+      valueB: periodDataB.opd
+    },
+    {
+      name: isAr ? 'طوارئ ANE' : 'Emergency ANE',
+      valueA: periodDataA.ane,
+      valueB: periodDataB.ane
+    },
+    {
+      name: isAr ? 'زيارات مجتمعية' : 'Community Care',
+      valueA: periodDataA.com,
+      valueB: periodDataB.com
+    }
+  ];
+
+  const getSubLabel = (s: string) => {
+    if (s === 'ALL') return isAr ? 'كامل السنة' : 'Full Year';
+    if (s === 'Q1') return isAr ? 'الربع الأول' : 'Q1';
+    if (s === 'Q2') return isAr ? 'الربع الثاني' : 'Q2';
+    if (s === 'Q3') return isAr ? 'الربع الثالث' : 'Q3';
+    if (s === 'Q4') return isAr ? 'الربع الرابع' : 'Q4';
+    const mNum = parseInt(s);
+    return mName(mNum, lang);
+  };
 
   // Handle data extraction
   const scope = resolveScope(data, selectedWil, selectedEstab, selectedYear);
@@ -373,6 +447,194 @@ export function VisitPage({ data, lang, theme }: VisitPageProps) {
               <Bar dataKey="community" name={isAr ? 'مجتمعية' : 'Community'} stackId="a" fill="#818cf8" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* TIME PERIOD PERFORMANCE COMPARISON (DYNAMIC) */}
+      <div className={`${styles.cardBg} border-indigo-400/10`}>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+          <div>
+            <h4 className={`text-[#818cf8] text-xs font-extrabold tracking-widest uppercase mb-1 flex items-center gap-1.5`}>
+              <span>⚖️</span>
+              <span>{isAr ? 'مقارنة فترات التردد والمؤشرات' : 'Period Performance Comparison'}</span>
+            </h4>
+            <h3 className={`text-base font-black ${styles.textMain}`}>
+              {isAr ? 'مقارنة الفترات الزمنية المزدوجة' : 'Dual-Period Attendance Breakdown'}
+            </h3>
+            <p className={`text-[10px] ${styles.textMuted} mt-0.5`}>
+              {isAr 
+                ? 'قارن أداء فترتين زمنيتين مختلفتين في رسم بياني واحد ومترابط، متضمناً التحليل الحجمي لجميع العيادات والأنماط المرضية.' 
+                : 'Compare checkup load across any two eras synchronously for diagnostic trend assessment.'}
+            </p>
+          </div>
+        </div>
+
+        {/* Dynamic Period Inputs Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4 border-b border-slate-700/30 opacity-95">
+          {/* Period A Selectors Container */}
+          <div className={`p-4 rounded-xl border ${styles.innerCardBg} border-sky-400/10 bg-gradient-to-tr from-sky-500/5 to-transparent`}>
+            <span className="text-xs font-black text-sky-400 block mb-2">{isAr ? 'الفترة الأولى (Period A)' : 'Period A Details'}</span>
+            <div className="flex flex-wrap gap-2">
+              {/* Year selectivity */}
+              <div className={`border rounded-lg px-2.5 py-1 flex items-center gap-1.5 ${styles.selectBg} ${styles.selectBorder}`}>
+                <span className={`text-[9px] font-bold ${styles.textMuted}`}>{isAr ? 'السنة:' : 'Year:'}</span>
+                <select 
+                  value={compYearA} 
+                  onChange={(e) => setCompYearA(e.target.value)}
+                  className={`bg-transparent text-xs font-bold outline-none cursor-pointer ${styles.selectText}`}
+                >
+                  {availableYears.map(yr => (
+                    <option key={yr} value={yr} className={styles.selectOptionBg}>{yr}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Sub ranges selectivity */}
+              <div className={`border rounded-lg px-2.5 py-1 flex items-center gap-1.5 ${styles.selectBg} ${styles.selectBorder}`}>
+                <span className={`text-[9px] font-bold ${styles.textMuted}`}>{isAr ? 'النطاق:' : 'Range:'}</span>
+                <select 
+                  value={compSubA} 
+                  onChange={(e) => setCompSubA(e.target.value)}
+                  className={`bg-transparent text-xs font-bold outline-none cursor-pointer ${styles.selectText}`}
+                >
+                  <option value="ALL" className={styles.selectOptionBg}>{isAr ? 'كامل السنة' : 'Full Year'}</option>
+                  <option value="Q1" className={styles.selectOptionBg}>{isAr ? 'الربع الأول (Q1)' : 'Quarter 1 (Q1)'}</option>
+                  <option value="Q2" className={styles.selectOptionBg}>{isAr ? 'الربع الثاني (Q2)' : 'Quarter 2 (Q2)'}</option>
+                  <option value="Q3" className={styles.selectOptionBg}>{isAr ? 'الربع الثالث (Q3)' : 'Quarter 3 (Q3)'}</option>
+                  <option value="Q4" className={styles.selectOptionBg}>{isAr ? 'الربع الرابع (Q4)' : 'Quarter 4 (Q4)'}</option>
+                  {Array.from({ length: 12 }, (_, i) => {
+                    const mCode = String(i + 1);
+                    return <option key={mCode} value={mCode} className={styles.selectOptionBg}>{months[i + 1]}</option>;
+                  })}
+                </select>
+              </div>
+            </div>
+
+            {/* Total Indicator in Card */}
+            <div className="mt-3 flex items-baseline gap-2">
+              <span className={`text-[#94a3b8] text-[10px] font-bold`}>{isAr ? 'إجمالي المترددين للمطابقة:' : 'Matching Target Sum:'}</span>
+              <span className="text-base font-black font-mono text-sky-400">{fmt(periodDataA.total)}</span>
+              <span className="text-[10px] text-slate-400">{isAr ? 'زيارة' : 'visits'}</span>
+            </div>
+          </div>
+
+          {/* Period B Selectors Container */}
+          <div className={`p-4 rounded-xl border ${styles.innerCardBg} border-indigo-400/10 bg-gradient-to-tr from-indigo-500/5 to-transparent`}>
+            <span className="text-xs font-black text-[#818cf8] block mb-2">{isAr ? 'الفترة الثانية (Period B)' : 'Period B Details'}</span>
+            <div className="flex flex-wrap gap-2">
+              {/* Year selectivity */}
+              <div className={`border rounded-lg px-2.5 py-1 flex items-center gap-1.5 ${styles.selectBg} ${styles.selectBorder}`}>
+                <span className={`text-[9px] font-bold ${styles.textMuted}`}>{isAr ? 'السنة:' : 'Year:'}</span>
+                <select 
+                  value={compYearB} 
+                  onChange={(e) => setCompYearB(e.target.value)}
+                  className={`bg-transparent text-xs font-bold outline-none cursor-pointer ${styles.selectText}`}
+                >
+                  {availableYears.map(yr => (
+                    <option key={yr} value={yr} className={styles.selectOptionBg}>{yr}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Sub ranges selectivity */}
+              <div className={`border rounded-lg px-2.5 py-1 flex items-center gap-1.5 ${styles.selectBg} ${styles.selectBorder}`}>
+                <span className={`text-[9px] font-bold ${styles.textMuted}`}>{isAr ? 'النطاق:' : 'Range:'}</span>
+                <select 
+                  value={compSubB} 
+                  onChange={(e) => setCompSubB(e.target.value)}
+                  className={`bg-transparent text-xs font-bold outline-none cursor-pointer ${styles.selectText}`}
+                >
+                  <option value="ALL" className={styles.selectOptionBg}>{isAr ? 'كامل السنة' : 'Full Year'}</option>
+                  <option value="Q1" className={styles.selectOptionBg}>{isAr ? 'الربع الأول (Q1)' : 'Quarter 1 (Q1)'}</option>
+                  <option value="Q2" className={styles.selectOptionBg}>{isAr ? 'الربع الثاني (Q2)' : 'Quarter 2 (Q2)'}</option>
+                  <option value="Q3" className={styles.selectOptionBg}>{isAr ? 'الربع الثالث (Q3)' : 'Quarter 3 (Q3)'}</option>
+                  <option value="Q4" className={styles.selectOptionBg}>{isAr ? 'الربع الرابع (Q4)' : 'Quarter 4 (Q4)'}</option>
+                  {Array.from({ length: 12 }, (_, i) => {
+                    const mCode = String(i + 1);
+                    return <option key={mCode} value={mCode} className={styles.selectOptionBg}>{months[i + 1]}</option>;
+                  })}
+                </select>
+              </div>
+            </div>
+
+            {/* Total Indicator in Card */}
+            <div className="mt-3 flex items-baseline gap-2">
+              <span className={`text-[#94a3b8] text-[10px] font-bold`}>{isAr ? 'إجمالي المترددين للمطابقة:' : 'Matching Target Sum:'}</span>
+              <span className="text-base font-black font-mono text-[#818cf8]">{fmt(periodDataB.total)}</span>
+              <span className="text-[10px] text-slate-400">{isAr ? 'زيارة' : 'visits'}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Dual Period visual graph & analytical indicators row */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 mt-5">
+          {/* Analytical summary deltas list */}
+          <div className="lg:col-span-5 flex flex-col justify-center space-y-4">
+            <h4 className={`text-xs font-bold border-b border-slate-700/20 pb-1 ${styles.textMain}`}>
+              {isAr ? 'الفروقات والمؤشرات التفصيلية' : 'Detailed Divergences & Trends'}
+            </h4>
+
+            {/* Table or segments comparing A vs B */}
+            <div className="space-y-3">
+              {[
+                { title: isAr ? 'عيادات خارجية OPD' : 'Outpatient (OPD)', valA: periodDataA.opd, valB: periodDataB.opd },
+                { title: isAr ? 'طوارئ ANE' : 'Emergency (ANE)', valA: periodDataA.ane, valB: periodDataB.ane },
+                { title: isAr ? 'مجتمعية Outreach' : 'Community Care', valA: periodDataA.com, valB: periodDataB.com },
+                { title: isAr ? 'المجموع الإجمالي للقراءة' : 'Overall Selected Total', valA: periodDataA.total, valB: periodDataB.total }
+              ].map((item, idx) => {
+                const diff = item.valB - item.valA;
+                const percC = item.valA > 0 ? (diff / item.valA) * 100 : 0;
+                return (
+                  <div key={idx} className={`p-2.5 rounded-lg border ${styles.innerCardBg} flex items-center justify-between gap-2`}>
+                    <div>
+                      <span className={`text-[11px] font-bold block ${styles.textMain}`}>{item.title}</span>
+                      <div className="flex items-center gap-3 mt-1 font-mono text-[10px] text-slate-400 leading-none">
+                        <span>A: <strong className="text-sky-400 font-bold">{fmt(item.valA)}</strong></span>
+                        <span>B: <strong className="text-[#818cf8] font-bold">{fmt(item.valB)}</strong></span>
+                      </div>
+                    </div>
+                    
+                    <div className="text-right">
+                      <span className={`text-xs font-mono font-black block ${diff >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+                        {diff >= 0 ? '+' : ''}{fmt(diff)}
+                      </span>
+                      <span className={`text-[9px] font-mono font-bold block mt-0.5 px-1 py-0.5 rounded leading-none ${diff >= 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
+                        {diff >= 0 ? '▲' : '▼'} {Math.abs(percC).toFixed(1)}%
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Grouped Comparison Chart */}
+          <div className="lg:col-span-7 h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={comparisonChartData} barSize={25}>
+                <CartesianGrid strokeDasharray="3 3" stroke={styles.gridStroke} />
+                <XAxis dataKey="name" stroke="#64748b" fontSize={11} />
+                <YAxis stroke="#64748b" fontSize={10} tickFormatter={(v) => v >= 1000000 ? `${(v/1000000).toFixed(1)}M` : `${v/1000}k`} />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: styles.tooltipBg, borderColor: styles.tooltipBorder, borderRadius: '8px' }}
+                  itemStyle={{ fontSize: '11px', color: styles.tooltipColor }}
+                />
+                <Legend iconSize={10} wrapperStyle={{ fontSize: '11px' }} />
+                <Bar 
+                  dataKey="valueA" 
+                  name={`${isAr ? 'الفترة أ' : 'Period A'} (${compYearA} ${getSubLabel(compSubA)})`} 
+                  fill="#38bdf8" 
+                  radius={[4, 4, 0, 0]} 
+                />
+                <Bar 
+                  dataKey="valueB" 
+                  name={`${isAr ? 'الفترة ب' : 'Period B'} (${compYearB} ${getSubLabel(compSubB)})`} 
+                  fill="#818cf8" 
+                  radius={[4, 4, 0, 0]} 
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
     </div>

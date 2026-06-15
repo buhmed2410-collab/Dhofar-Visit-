@@ -23,6 +23,7 @@ import {
   Award,
   Zap
 } from 'lucide-react';
+import { jsPDF } from 'jspdf';
 import { DashboardData, LangType, ThemeType } from '../types';
 import { fmt, pct, wName, mName, getAvailableYears } from '../utils';
 import { themeStyles } from '../theme';
@@ -34,6 +35,219 @@ interface OverviewPageProps {
 }
 
 const COLORS = ['#38bdf8', '#818cf8', '#34d399', '#f59e0b', '#f87171', '#a855f7', '#06d6a0', '#fbbf24', '#60a5fa', '#f472b6'];
+
+function oklchToRgb(l: number, c: number, h: number, alpha?: string): string {
+  // Convert hue to radians
+  const hRad = (h * Math.PI) / 180;
+  const a = c * Math.cos(hRad);
+  const b = c * Math.sin(hRad);
+
+  const l_ = l + 0.3963377774 * a + 0.2158037573 * b;
+  const m_ = l - 0.1055613458 * a - 0.0638541728 * b;
+  const s_ = l - 0.0894841775 * a - 1.2914855480 * b;
+
+  const l3 = l_ * l_ * l_;
+  const m3 = m_ * m_ * m_;
+  const s3 = s_ * s_ * s_;
+
+  let r = +4.0767416621 * l3 - 3.3077115913 * m3 + 0.2309699292 * s3;
+  let g = -1.2684380046 * l3 + 2.6097574011 * m3 - 0.3413193965 * s3;
+  let b_ = -0.0041960863 * l3 - 0.7034186147 * m3 + 1.7076216850 * s3;
+
+  const f = (x: number) => {
+    if (x <= 0.0031308) return 12.92 * x;
+    return 1.055 * Math.pow(x, 1 / 2.4) - 0.055;
+  };
+
+  r = Math.max(0, Math.min(1, f(r)));
+  g = Math.max(0, Math.min(1, f(g)));
+  b_ = Math.max(0, Math.min(1, f(b_)));
+
+  const r255 = Math.round(r * 255);
+  const g255 = Math.round(g * 255);
+  const b255 = Math.round(b_ * 255);
+
+  if (alpha !== undefined && alpha !== null && alpha !== '') {
+    return `rgba(${r255}, ${g255}, ${b255}, ${alpha})`;
+  }
+  return `rgb(${r255}, ${g255}, ${b255})`;
+}
+
+function replaceOklchInCss(cssText: string): string {
+  let pos = 0;
+  while (true) {
+    const startIdx = cssText.indexOf('oklch(', pos);
+    if (startIdx === -1) break;
+
+    let depth = 1;
+    let endIdx = -1;
+    for (let i = startIdx + 6; i < cssText.length; i++) {
+      if (cssText[i] === '(') depth++;
+      else if (cssText[i] === ')') depth--;
+
+      if (depth === 0) {
+        endIdx = i;
+        break;
+      }
+    }
+
+    if (endIdx === -1) {
+      pos = startIdx + 6;
+      continue;
+    }
+
+    const fullMatch = cssText.substring(startIdx, endIdx + 1);
+    const inner = cssText.substring(startIdx + 6, endIdx).trim();
+
+    const parts = inner.split('/');
+    const lchPart = parts[0].trim();
+    const alphaPart = parts[1] ? parts[1].trim() : undefined;
+
+    const lchValues = lchPart.split(/[\s,]+/).filter(Boolean);
+    if (lchValues.length >= 3) {
+      const lStr = lchValues[0].trim();
+      const cStr = lchValues[1].trim();
+      const hStr = lchValues[2].trim();
+
+      const l = lStr === 'none' ? 0 : (lStr.endsWith('%') ? parseFloat(lStr) / 100 : parseFloat(lStr));
+      const c = cStr === 'none' ? 0 : (cStr.endsWith('%') ? parseFloat(cStr) / 100 : parseFloat(cStr));
+      const h = hStr === 'none' ? 0 : (hStr.endsWith('%') ? parseFloat(hStr) / 100 : parseFloat(hStr));
+
+      if (!isNaN(l) && !isNaN(c) && !isNaN(h)) {
+        let alpha = '1';
+        if (alphaPart) {
+          if (alphaPart.includes('var(')) {
+            alpha = '0.9';
+          } else {
+            alpha = alphaPart;
+          }
+        }
+        
+        try {
+          const rgbString = oklchToRgb(l, c, h, alpha);
+          cssText = cssText.substring(0, startIdx) + rgbString + cssText.substring(endIdx + 1);
+          pos = startIdx + rgbString.length;
+          continue;
+        } catch (e) {
+          // ignore
+        }
+      }
+    }
+
+    const fallback = 'rgb(100, 100, 100)';
+    cssText = cssText.substring(0, startIdx) + fallback + cssText.substring(endIdx + 1);
+    pos = startIdx + fallback.length;
+  }
+
+  return cssText;
+}
+
+function oklabToRgb(l: number, a: number, b: number, alpha?: string): string {
+  const l_ = l + 0.3963377774 * a + 0.2158037573 * b;
+  const m_ = l - 0.1055613458 * a - 0.0638541728 * b;
+  const s_ = l - 0.0894841775 * a - 1.2914855480 * b;
+
+  const l3 = l_ * l_ * l_;
+  const m3 = m_ * m_ * m_;
+  const s3 = s_ * s_ * s_;
+
+  let r = +4.0767416621 * l3 - 3.3077115913 * m3 + 0.2309699292 * s3;
+  let g = -1.2684380046 * l3 + 2.6097574011 * m3 - 0.3413193965 * s3;
+  let b_ = -0.0041960863 * l3 - 0.7034186147 * m3 + 1.7076216850 * s3;
+
+  const f = (x: number) => {
+    if (x <= 0.0031308) return 12.92 * x;
+    return 1.055 * Math.pow(x, 1 / 2.4) - 0.055;
+  };
+
+  r = Math.max(0, Math.min(1, f(r)));
+  g = Math.max(0, Math.min(1, f(g)));
+  b_ = Math.max(0, Math.min(1, f(b_)));
+
+  const r255 = Math.round(r * 255);
+  const g255 = Math.round(g * 255);
+  const b255 = Math.round(b_ * 255);
+
+  if (alpha !== undefined && alpha !== null && alpha !== '') {
+    return `rgba(${r255}, ${g255}, ${b255}, ${alpha})`;
+  }
+  return `rgb(${r255}, ${g255}, ${b255})`;
+}
+
+function replaceOklabInCss(cssText: string): string {
+  let pos = 0;
+  while (true) {
+    const startIdx = cssText.indexOf('oklab(', pos);
+    if (startIdx === -1) break;
+
+    let depth = 1;
+    let endIdx = -1;
+    for (let i = startIdx + 6; i < cssText.length; i++) {
+      if (cssText[i] === '(') depth++;
+      else if (cssText[i] === ')') depth--;
+
+      if (depth === 0) {
+        endIdx = i;
+        break;
+      }
+    }
+
+    if (endIdx === -1) {
+      pos = startIdx + 6;
+      continue;
+    }
+
+    const fullMatch = cssText.substring(startIdx, endIdx + 1);
+    const inner = cssText.substring(startIdx + 6, endIdx).trim();
+
+    const parts = inner.split('/');
+    const labPart = parts[0].trim();
+    const alphaPart = parts[1] ? parts[1].trim() : undefined;
+
+    const labValues = labPart.split(/[\s,]+/).filter(Boolean);
+    if (labValues.length >= 3) {
+      const lStr = labValues[0].trim();
+      const aStr = labValues[1].trim();
+      const bStr = labValues[2].trim();
+
+      const l = lStr === 'none' ? 0 : (lStr.endsWith('%') ? parseFloat(lStr) / 100 : parseFloat(lStr));
+      const a = aStr === 'none' ? 0 : (aStr.endsWith('%') ? parseFloat(aStr) / 100 : parseFloat(aStr));
+      const b = bStr === 'none' ? 0 : (bStr.endsWith('%') ? parseFloat(bStr) / 100 : parseFloat(bStr));
+
+      if (!isNaN(l) && !isNaN(a) && !isNaN(b)) {
+        let alpha = '1';
+        if (alphaPart) {
+          if (alphaPart.includes('var(')) {
+            alpha = '0.9';
+          } else {
+            alpha = alphaPart;
+          }
+        }
+        
+        try {
+          const rgbString = oklabToRgb(l, a, b, alpha);
+          cssText = cssText.substring(0, startIdx) + rgbString + cssText.substring(endIdx + 1);
+          pos = startIdx + rgbString.length;
+          continue;
+        } catch (e) {
+          // ignore
+        }
+      }
+    }
+
+    const fallback = 'rgb(100, 100, 100)';
+    cssText = cssText.substring(0, startIdx) + fallback + cssText.substring(endIdx + 1);
+    pos = startIdx + fallback.length;
+  }
+
+  return cssText;
+}
+
+function replaceOklchAndOklabInCss(cssText: string): string {
+  cssText = replaceOklchInCss(cssText);
+  cssText = replaceOklabInCss(cssText);
+  return cssText;
+}
 
 export function OverviewPage({ data, lang, theme }: OverviewPageProps) {
   const isAr = lang === 'ar';
@@ -51,6 +265,158 @@ export function OverviewPage({ data, lang, theme }: OverviewPageProps) {
 
   // Dynamic active wilayats count
   const totalWilayats = Object.keys(data.by_wilayat || {}).length || 10;
+
+  const handleExportPDF = async () => {
+    // Keep track of resources to restore
+    const originalStylesheets: { element: HTMLStyleElement; originalText: string }[] = [];
+    const temporaryStylesheets: HTMLStyleElement[] = [];
+    const disabledLinkStylesheets: HTMLLinkElement[] = [];
+
+    // Save original getComputedStyle functions
+    const originalGetComputedStyle = window.getComputedStyle;
+    const originalDefaultViewGetComputedStyle = document.defaultView ? document.defaultView.getComputedStyle : undefined;
+
+    try {
+      const element = document.getElementById("overview-content-to-export");
+      if (!element) return;
+
+      // Wrap getComputedStyle with a Proxy to dynamically intercept CSSStyleDeclaration queries and
+      // translate OKLCH/OKLAB colors into standard RGB formats.
+      const patchedGetComputedStyle = function (this: any, el: any, pseudoEl: any) {
+        const originalStyle = originalGetComputedStyle.call(this || window, el, pseudoEl);
+        return new Proxy(originalStyle, {
+          get(target, prop, receiver) {
+            const val = Reflect.get(target, prop, receiver);
+            if (typeof val === 'string') {
+              return replaceOklchAndOklabInCss(val);
+            }
+            if (typeof val === 'function') {
+              return function (this: any, ...args: any[]) {
+                // Ensure correct native target context is used for method invocation
+                const res = val.apply(target, args);
+                if (typeof res === 'string') {
+                  return replaceOklchAndOklabInCss(res);
+                }
+                return res;
+              };
+            }
+            return val;
+          }
+        });
+      };
+
+      window.getComputedStyle = patchedGetComputedStyle as any;
+      if (document.defaultView) {
+        document.defaultView.getComputedStyle = patchedGetComputedStyle as any;
+      }
+
+      // 1. Process style tags
+      const styleElements = Array.from(document.querySelectorAll('style'));
+      for (const styleEl of styleElements) {
+        const text = styleEl.textContent || '';
+        if (text.includes('oklch(') || text.includes('oklab(')) {
+          originalStylesheets.push({
+            element: styleEl,
+            originalText: text
+          });
+          styleEl.textContent = replaceOklchAndOklabInCss(text);
+        }
+      }
+
+      // 2. Process link tags
+      const linkElements = Array.from(document.querySelectorAll('link[rel="stylesheet"]')) as HTMLLinkElement[];
+      for (const linkEl of linkElements) {
+        try {
+          const href = linkEl.href;
+          if (href) {
+            const response = await fetch(href);
+            const cssText = await response.text();
+            if (cssText.includes('oklch(') || cssText.includes('oklab(')) {
+              // Create temporary stylesheet with oklch/oklab-replaced contents
+              const patchedCss = replaceOklchAndOklabInCss(cssText);
+              const tempStyleEl = document.createElement('style');
+              tempStyleEl.setAttribute('id', 'temp-purged-oklch-style');
+              tempStyleEl.textContent = patchedCss;
+              document.head.appendChild(tempStyleEl);
+              temporaryStylesheets.push(tempStyleEl);
+
+              // Disable original link
+              linkEl.disabled = true;
+              disabledLinkStylesheets.push(linkEl);
+            }
+          }
+        } catch (e) {
+          console.warn("Failed to fetch/preprocess external stylesheet:", linkEl.href, e);
+        }
+      }
+
+      const html2canvas = (await import('html2canvas')).default;
+
+      // Hide the export button temporarily during screenshot capture
+      const exportBtn = document.getElementById("export-pdf-button");
+      if (exportBtn) {
+        exportBtn.style.visibility = "hidden";
+      }
+
+      const canvas = await html2canvas(element, {
+        scale: 2, // Capture at double resolution for high print quality
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: theme === 'immersive' ? '#0b1329' : theme === 'luxury' ? '#0d1315' : '#ffffff',
+        logging: false
+      });
+
+      // Restore button visibility
+      if (exportBtn) {
+        exportBtn.style.visibility = "visible";
+      }
+
+      const imgData = canvas.toDataURL("image/png");
+
+      const imgWidth = 210; // A4 width in mm
+      const pageHeight = 297; // A4 height in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+
+      const doc = new jsPDF("p", "mm", "a4");
+      let position = 0;
+
+      // Draw first page
+      doc.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      // Draw additional pages if content spans across height
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        doc.addPage();
+        doc.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      doc.save(`dhofar_health_overview_report_${new Date().toISOString().split('T')[0]}.pdf`);
+    } catch (err) {
+      console.error("PDF Export failed:", err);
+    } finally {
+      // Restore original getComputedStyle functions
+      window.getComputedStyle = originalGetComputedStyle;
+      if (document.defaultView && originalDefaultViewGetComputedStyle) {
+        document.defaultView.getComputedStyle = originalDefaultViewGetComputedStyle;
+      }
+
+      // 3. Restore all original styles
+      for (const { element, originalText } of originalStylesheets) {
+        element.textContent = originalText;
+      }
+      for (const tempStyleEl of temporaryStylesheets) {
+        if (tempStyleEl.parentNode) {
+          tempStyleEl.parentNode.removeChild(tempStyleEl);
+        }
+      }
+      for (const linkEl of disabledLinkStylesheets) {
+        linkEl.disabled = false;
+      }
+    }
+  };
 
   // Narrative 1: Max Wilayat
   let maxWilayatName = '';
@@ -179,7 +545,7 @@ export function OverviewPage({ data, lang, theme }: OverviewPageProps) {
   });
 
   return (
-    <div className="space-y-6">
+    <div id="overview-content-to-export" className="space-y-6 p-4">
       {/* SECTION TITLE */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -195,7 +561,7 @@ export function OverviewPage({ data, lang, theme }: OverviewPageProps) {
         </div>
 
         {/* Global Overview pill values */}
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <div className={`rounded-lg border px-3 py-1.5 text-center transition-all ${styles.selectBg} ${styles.selectBorder}`}>
             <span className={`text-[9px] font-bold block ${styles.textMuted}`}>{isAr ? 'إجمالي المترددين' : 'Total Visits'}</span>
             <span className="text-sm font-black text-sky-500 font-mono">{fmt(data.total)}</span>
@@ -372,6 +738,7 @@ export function OverviewPage({ data, lang, theme }: OverviewPageProps) {
           </div>
         </div>
       </div>
+
 
       {/* CORE CHARTS: ROW 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
