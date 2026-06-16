@@ -1,4 +1,5 @@
 import { DashboardData } from './types';
+import { BY_WIL_YEAR_MONTH_SHIFT } from './shift_data';
 
 export const WILAYAT_AR: Record<string, string> = {
   'SALALAH': 'صلالة',
@@ -787,5 +788,5 @@ export const INITIAL_DATA: DashboardData = {
       "12": { "1ST SHIFT (MORNING)": 92322, "2nd SHIFT (AFTERNOON)": 51385, "3RD SHIFT (NIGHT)": 17783 }
     }
   },
-  by_wil_year_month_shift: {}
+  by_wil_year_month_shift: BY_WIL_YEAR_MONTH_SHIFT
 };

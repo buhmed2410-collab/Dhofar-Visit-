@@ -65,11 +65,13 @@ export default function App() {
       const saved = localStorage.getItem('dhofar_dashboard_data');
       if (saved) {
         const parsed = JSON.parse(saved);
-        // Heal missing segment metrics from the updated source templates
-        if (!parsed.by_year_month_shift || Object.keys(parsed.by_year_month_shift).length === 0) {
+        // Force refresh shift matrices from INITIAL_DATA if using the default dataset,
+        // or if the cached data lacks correct key depth. This solves old cached structure issue.
+        const isDefault = parsed.total === INITIAL_DATA.total;
+        if (isDefault || !parsed.by_year_month_shift || Object.keys(parsed.by_year_month_shift).length === 0) {
           parsed.by_year_month_shift = INITIAL_DATA.by_year_month_shift;
         }
-        if (!parsed.by_wil_year_month_shift) {
+        if (isDefault || !parsed.by_wil_year_month_shift || Object.keys(parsed.by_wil_year_month_shift).length < 5) {
           parsed.by_wil_year_month_shift = INITIAL_DATA.by_wil_year_month_shift || {};
         }
         return parsed;
