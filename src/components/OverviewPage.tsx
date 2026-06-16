@@ -21,12 +21,16 @@ import {
   CalendarDays,
   TrendingUp,
   Award,
-  Zap
+  Zap,
+  Download,
+  FileSpreadsheet
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
+import * as XLSX from 'xlsx';
 import { DashboardData, LangType, ThemeType } from '../types';
 import { fmt, pct, wName, mName, getAvailableYears } from '../utils';
 import { themeStyles } from '../theme';
+import { WILAYAT_AR } from '../data';
 
 interface OverviewPageProps {
   data: DashboardData;
@@ -265,158 +269,6 @@ export function OverviewPage({ data, lang, theme }: OverviewPageProps) {
 
   // Dynamic active wilayats count
   const totalWilayats = Object.keys(data.by_wilayat || {}).length || 10;
-
-  const handleExportPDF = async () => {
-    // Keep track of resources to restore
-    const originalStylesheets: { element: HTMLStyleElement; originalText: string }[] = [];
-    const temporaryStylesheets: HTMLStyleElement[] = [];
-    const disabledLinkStylesheets: HTMLLinkElement[] = [];
-
-    // Save original getComputedStyle functions
-    const originalGetComputedStyle = window.getComputedStyle;
-    const originalDefaultViewGetComputedStyle = document.defaultView ? document.defaultView.getComputedStyle : undefined;
-
-    try {
-      const element = document.getElementById("overview-content-to-export");
-      if (!element) return;
-
-      // Wrap getComputedStyle with a Proxy to dynamically intercept CSSStyleDeclaration queries and
-      // translate OKLCH/OKLAB colors into standard RGB formats.
-      const patchedGetComputedStyle = function (this: any, el: any, pseudoEl: any) {
-        const originalStyle = originalGetComputedStyle.call(this || window, el, pseudoEl);
-        return new Proxy(originalStyle, {
-          get(target, prop, receiver) {
-            const val = Reflect.get(target, prop, receiver);
-            if (typeof val === 'string') {
-              return replaceOklchAndOklabInCss(val);
-            }
-            if (typeof val === 'function') {
-              return function (this: any, ...args: any[]) {
-                // Ensure correct native target context is used for method invocation
-                const res = val.apply(target, args);
-                if (typeof res === 'string') {
-                  return replaceOklchAndOklabInCss(res);
-                }
-                return res;
-              };
-            }
-            return val;
-          }
-        });
-      };
-
-      window.getComputedStyle = patchedGetComputedStyle as any;
-      if (document.defaultView) {
-        document.defaultView.getComputedStyle = patchedGetComputedStyle as any;
-      }
-
-      // 1. Process style tags
-      const styleElements = Array.from(document.querySelectorAll('style'));
-      for (const styleEl of styleElements) {
-        const text = styleEl.textContent || '';
-        if (text.includes('oklch(') || text.includes('oklab(')) {
-          originalStylesheets.push({
-            element: styleEl,
-            originalText: text
-          });
-          styleEl.textContent = replaceOklchAndOklabInCss(text);
-        }
-      }
-
-      // 2. Process link tags
-      const linkElements = Array.from(document.querySelectorAll('link[rel="stylesheet"]')) as HTMLLinkElement[];
-      for (const linkEl of linkElements) {
-        try {
-          const href = linkEl.href;
-          if (href) {
-            const response = await fetch(href);
-            const cssText = await response.text();
-            if (cssText.includes('oklch(') || cssText.includes('oklab(')) {
-              // Create temporary stylesheet with oklch/oklab-replaced contents
-              const patchedCss = replaceOklchAndOklabInCss(cssText);
-              const tempStyleEl = document.createElement('style');
-              tempStyleEl.setAttribute('id', 'temp-purged-oklch-style');
-              tempStyleEl.textContent = patchedCss;
-              document.head.appendChild(tempStyleEl);
-              temporaryStylesheets.push(tempStyleEl);
-
-              // Disable original link
-              linkEl.disabled = true;
-              disabledLinkStylesheets.push(linkEl);
-            }
-          }
-        } catch (e) {
-          console.warn("Failed to fetch/preprocess external stylesheet:", linkEl.href, e);
-        }
-      }
-
-      const html2canvas = (await import('html2canvas')).default;
-
-      // Hide the export button temporarily during screenshot capture
-      const exportBtn = document.getElementById("export-pdf-button");
-      if (exportBtn) {
-        exportBtn.style.visibility = "hidden";
-      }
-
-      const canvas = await html2canvas(element, {
-        scale: 2, // Capture at double resolution for high print quality
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: theme === 'immersive' ? '#0b1329' : theme === 'luxury' ? '#0d1315' : '#ffffff',
-        logging: false
-      });
-
-      // Restore button visibility
-      if (exportBtn) {
-        exportBtn.style.visibility = "visible";
-      }
-
-      const imgData = canvas.toDataURL("image/png");
-
-      const imgWidth = 210; // A4 width in mm
-      const pageHeight = 297; // A4 height in mm
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      let heightLeft = imgHeight;
-
-      const doc = new jsPDF("p", "mm", "a4");
-      let position = 0;
-
-      // Draw first page
-      doc.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-
-      // Draw additional pages if content spans across height
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
-        doc.addPage();
-        doc.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
-
-      doc.save(`dhofar_health_overview_report_${new Date().toISOString().split('T')[0]}.pdf`);
-    } catch (err) {
-      console.error("PDF Export failed:", err);
-    } finally {
-      // Restore original getComputedStyle functions
-      window.getComputedStyle = originalGetComputedStyle;
-      if (document.defaultView && originalDefaultViewGetComputedStyle) {
-        document.defaultView.getComputedStyle = originalDefaultViewGetComputedStyle;
-      }
-
-      // 3. Restore all original styles
-      for (const { element, originalText } of originalStylesheets) {
-        element.textContent = originalText;
-      }
-      for (const tempStyleEl of temporaryStylesheets) {
-        if (tempStyleEl.parentNode) {
-          tempStyleEl.parentNode.removeChild(tempStyleEl);
-        }
-      }
-      for (const linkEl of disabledLinkStylesheets) {
-        linkEl.disabled = false;
-      }
-    }
-  };
 
   // Narrative 1: Max Wilayat
   let maxWilayatName = '';
