@@ -5,6 +5,7 @@ import { Menu, X } from 'lucide-react';
 import { INITIAL_DATA } from './data';
 import { DashboardData, LangType, ThemeType, PageType } from './types';
 import { themeStyles } from './theme';
+import { HealthInfoLogo } from './components/HealthInfoLogo';
 
 // Tab components
 import { OverviewPage } from './components/OverviewPage';
@@ -471,8 +472,8 @@ export default function App() {
         {/* GLOBAL HEADER BAR */}
         <header className={`sticky top-0 z-30 px-6 py-4 flex items-center justify-between ${headerBg}`}>
           <div className="flex items-center gap-3">
-            <div className={`bg-gradient-to-tr from-sky-500 to-indigo-600 text-white font-black p-2 rounded-xl text-lg select-none`}>
-              🇴🇲
+            <div className="bg-white/95 dark:bg-slate-900 border border-slate-200/40 dark:border-slate-800/80 p-1 rounded-xl shadow-md flex items-center justify-center select-none">
+              <HealthInfoLogo size="md" />
             </div>
             <div>
               <h1 className={`text-xs md:text-sm lg:text-base font-black tracking-tight select-none ${currentThemeStyles.headerText}`}>

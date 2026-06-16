@@ -13,6 +13,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import { ThemeType, LangType, PageType } from '../types';
+import { HealthInfoLogo } from './HealthInfoLogo';
 
 interface SidebarProps {
   currentTab: PageType;
@@ -108,8 +109,8 @@ export function Sidebar({
     <aside className={responsiveClasses}>
       {/* BRANDING */}
       <div className={`p-6 border-b text-center flex flex-col items-center ${sTheme.headerBorder}`}>
-        <div className="w-14 h-14 bg-gradient-to-tr from-sky-400 to-indigo-500 rounded-2xl flex items-center justify-center text-3xl shadow-lg shadow-sky-500/20 mb-3">
-          🏥
+        <div className="bg-white/95 dark:bg-slate-900 border border-slate-200/40 dark:border-slate-800/80 p-1.5 rounded-2xl shadow-md mb-3 flex items-center justify-center select-none">
+          <HealthInfoLogo size="lg" />
         </div>
         <h2 className="text-sm font-bold leading-relaxed mb-1">
           {isAr ? (
