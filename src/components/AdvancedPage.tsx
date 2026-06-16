@@ -817,7 +817,7 @@ export function AdvancedPage({ data, lang, theme }: AdvancedPageProps) {
                   <span className="text-base font-black text-sky-500 font-mono">{fmt(activeWilVal)}</span>
                 </div>
                 <div className="bg-slate-950/20 p-3 rounded-lg border border-white/5">
-                  <span className="text-[10px] block opacity-90 font-bold mb-0.5" style={{ color: chartColors.textMain }}>{isAr ? 'المؤسسات والمرافق الصحية' : 'Clinics & Facilities'}</span>
+                  <span className="text-[10px] block opacity-90 font-bold mb-0.5" style={{ color: chartColors.textMain }}>{isAr ? 'المؤسسات الصحية' : 'Clinics & Facilities'}</span>
                   <span className="text-base font-black text-indigo-400 font-mono">
                     {Object.keys(data.by_wil_estab[activeWilInfo] || {}).length} {isAr ? 'مؤسسات' : 'est.'}
                   </span>
@@ -1183,7 +1183,7 @@ export function AdvancedPage({ data, lang, theme }: AdvancedPageProps) {
                 className={`text-xs font-black rounded-lg px-2 py-1 outline-none cursor-pointer border ${styles.selectBg} ${styles.selectText} ${styles.selectBorder}`}
                 style={{ color: chartColors.textMain }}
               >
-                <option value="ALL" className={styles.selectOptionBg}>{isAr ? 'عموم المحافظة (ظفار)' : 'Entire Dhofar Governorate'}</option>
+                <option value="ALL" className={styles.selectOptionBg}>{isAr ? 'محافظة ظفار' : 'Entire Dhofar Governorate'}</option>
                 {Object.keys(data.by_wilayat).map(w => (
                   <option key={w} value={w} className={styles.selectOptionBg}>{isAr ? WILAYAT_AR[w] || w : w}</option>
                 ))}
