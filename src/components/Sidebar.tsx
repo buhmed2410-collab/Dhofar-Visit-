@@ -109,7 +109,7 @@ export function Sidebar({
     <aside className={responsiveClasses}>
       {/* BRANDING */}
       <div className={`p-6 border-b text-center flex flex-col items-center ${sTheme.headerBorder}`}>
-        <div className="bg-white/95 dark:bg-slate-900 border border-slate-200/40 dark:border-slate-800/80 p-1.5 rounded-2xl shadow-md mb-3 flex items-center justify-center select-none">
+        <div className="bg-white border border-slate-200 p-1.5 rounded-2xl shadow-md mb-3 flex items-center justify-center select-none">
           <HealthInfoLogo size="lg" />
         </div>
         <h2 className="text-sm font-bold leading-relaxed mb-1">
