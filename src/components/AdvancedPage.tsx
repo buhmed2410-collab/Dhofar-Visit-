@@ -900,12 +900,31 @@ export function AdvancedPage({ data, lang, theme }: AdvancedPageProps) {
                   : `Medical Centers under ${activeWilInfo}`}
               </span>
               <div className="space-y-1.5">
-                {Object.entries(data.by_wil_estab[activeWilInfo] || {}).map(([estName, val]) => (
-                  <div key={estName} className="flex items-center justify-between text-[11px] border-b border-white/5 pb-1.5 font-bold font-mono">
-                    <span className="text-right font-sans truncate max-w-[200px]" style={{ color: chartColors.textMuted }}>{estName}</span>
-                    <span className="font-extrabold text-[#f59e0b]">{fmt(val)}</span>
-                  </div>
-                ))}
+                {(() => {
+                  const estMap = data.by_wil_estab[activeWilInfo] || {};
+                  const list = Object.entries(estMap).map(([estName, cumulativeVal]) => {
+                    const val = mapYearFilter === 'ALL'
+                      ? (data.by_estab_year[estName]
+                          ? Object.values(data.by_estab_year[estName]).reduce((sum, v) => sum + (v || 0), 0)
+                          : Number(cumulativeVal || 0))
+                      : (data.by_estab_year[estName]?.[mapYearFilter] || 0);
+                    return { name: estName, value: val };
+                  });
+
+                  // Filter out zero-visit clinics for this year to keep it clean, fallback to all if empty
+                  const filteredList = list.filter(item => item.value > 0);
+                  const listToRender = filteredList.length > 0 ? filteredList : list;
+
+                  // Sort descending by visit value
+                  listToRender.sort((a, b) => b.value - a.value);
+
+                  return listToRender.map(({ name, value }) => (
+                    <div key={name} className="flex items-center justify-between text-[11px] border-b border-white/5 pb-1.5 font-bold font-mono animate-fade-in">
+                      <span className="text-right font-sans truncate max-w-[200px]" style={{ color: chartColors.textMuted }}>{name}</span>
+                      <span className="font-extrabold text-[#f59e0b] font-mono">{fmt(value)}</span>
+                    </div>
+                  ));
+                })()}
               </div>
             </div>
 

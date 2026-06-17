@@ -261,13 +261,35 @@ export function UploadModal({
 
     rows.forEach(r => {
       const v = parseInt(r['Total Visit']) || 0;
-      const w = r['WILAYAT'];
-      const yr = r['Year'];
-      const mo = String(parseInt(r['Month']));
-      const enc = r['ENCOUNTER_TYPE'] as 'OPD' | 'ANE' | 'COMMUNITY';
-      const sh = r['SHIFT'] as '1ST SHIFT (MORNING)' | '2nd SHIFT (AFTERNOON)' | '3RD SHIFT (NIGHT)';
-      const hol = r['HOLIDAY_YN'] as 'WORKING DAY' | 'HOLIDAY';
-      const est = r['ESTABLISHMENT'];
+      
+      // Standardize Wilayat to uppercase trimmed
+      const rawW = (r['WILAYAT'] || '').trim().toUpperCase();
+      const w = Object.keys(currentData.by_wilayat).find(k => k.toUpperCase() === rawW) || rawW;
+
+      const yr = (r['Year'] || '').trim();
+      const mo = String(parseInt(r['Month']) || 1);
+
+      // Standardize Encounter type
+      const rawEnc = (r['ENCOUNTER_TYPE'] || '').trim().toUpperCase();
+      let enc: 'OPD' | 'ANE' | 'COMMUNITY' = 'OPD';
+      if (rawEnc.includes('OPD') || rawEnc.includes('OUT')) enc = 'OPD';
+      else if (rawEnc.includes('ANE') || rawEnc.includes('EMER') || rawEnc.includes('ACCID')) enc = 'ANE';
+      else if (rawEnc.includes('COMM') || rawEnc.includes('SOCI')) enc = 'COMMUNITY';
+
+      // Standardize Shift
+      const rawSh = (r['SHIFT'] || '').trim().toUpperCase();
+      let sh: '1ST SHIFT (MORNING)' | '2nd SHIFT (AFTERNOON)' | '3RD SHIFT (NIGHT)' = '1ST SHIFT (MORNING)';
+      if (rawSh.includes('1ST') || rawSh.includes('MORN')) sh = '1ST SHIFT (MORNING)';
+      else if (rawSh.includes('2ND') || rawSh.includes('AFTER')) sh = '2nd SHIFT (AFTERNOON)';
+      else if (rawSh.includes('3RD') || rawSh.includes('NIGHT')) sh = '3RD SHIFT (NIGHT)';
+
+      // Standardize Holiday
+      const rawHol = (r['HOLIDAY_YN'] || '').trim().toUpperCase();
+      let hol: 'WORKING DAY' | 'HOLIDAY' = 'WORKING DAY';
+      if (rawHol.includes('WORK')) hol = 'WORKING DAY';
+      else if (rawHol.includes('HOL') || rawHol.includes('VAC')) hol = 'HOLIDAY';
+
+      const est = (r['ESTABLISHMENT'] || '').trim().toUpperCase();
 
       agg.total += v;
       inc(agg.by_wilayat, w, v);
