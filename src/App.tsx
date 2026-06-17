@@ -512,6 +512,84 @@ export default function App() {
         merged.by_holiday[k] = (merged.by_holiday[k] || 0) + v;
       });
 
+      // Merge by_month
+      Object.entries(newParsedData.by_month || {}).forEach(([mo, v]) => {
+        merged.by_month[mo] = (merged.by_month[mo] || 0) + v;
+      });
+
+      // Merge by_wil_holiday
+      Object.entries(newParsedData.by_wil_holiday || {}).forEach(([w, hMap]) => {
+        if (!merged.by_wil_holiday[w]) merged.by_wil_holiday[w] = {};
+        Object.entries(hMap).forEach(([h, v]) => {
+          merged.by_wil_holiday[w][h as any] = (merged.by_wil_holiday[w][h as any] || 0) + v;
+        });
+      });
+
+      // Merge by_estab_enc
+      Object.entries(newParsedData.by_estab_enc || {}).forEach(([est, eMap]) => {
+        if (!merged.by_estab_enc[est]) merged.by_estab_enc[est] = {};
+        Object.entries(eMap).forEach(([enc, v]) => {
+          merged.by_estab_enc[est][enc as any] = (merged.by_estab_enc[est][enc as any] || 0) + v;
+        });
+      });
+
+      // Merge by_estab_holiday
+      Object.entries(newParsedData.by_estab_holiday || {}).forEach(([est, hMap]) => {
+        if (!merged.by_estab_holiday[est]) merged.by_estab_holiday[est] = {};
+        Object.entries(hMap).forEach(([h, v]) => {
+          merged.by_estab_holiday[est][h as any] = (merged.by_estab_holiday[est][h as any] || 0) + v;
+        });
+      });
+
+      // Merge by_estab_month
+      Object.entries(newParsedData.by_estab_month || {}).forEach(([est, mMap]) => {
+        if (!merged.by_estab_month[est]) merged.by_estab_month[est] = {};
+        Object.entries(mMap).forEach(([mo, v]) => {
+          merged.by_estab_month[est][mo] = (merged.by_estab_month[est][mo] || 0) + v;
+        });
+      });
+
+      // Merge by_wil_month
+      Object.entries(newParsedData.by_wil_month || {}).forEach(([w, mMap]) => {
+        if (!merged.by_wil_month[w]) merged.by_wil_month[w] = {};
+        Object.entries(mMap).forEach(([mo, v]) => {
+          merged.by_wil_month[w][mo] = (merged.by_wil_month[w][mo] || 0) + v;
+        });
+      });
+
+      // Merge by_estab_enc_year
+      Object.entries(newParsedData.by_estab_enc_year || {}).forEach(([est, eMap]) => {
+        if (!merged.by_estab_enc_year[est]) merged.by_estab_enc_year[est] = {};
+        Object.entries(eMap).forEach(([enc, yrMap]) => {
+          if (!merged.by_estab_enc_year[est][enc as any]) merged.by_estab_enc_year[est][enc as any] = {};
+          Object.entries(yrMap).forEach(([yr, v]) => {
+            merged.by_estab_enc_year[est][enc as any][yr] = (merged.by_estab_enc_year[est][enc as any][yr] || 0) + v;
+          });
+        });
+      });
+
+      // Merge by_wil_holiday_year
+      Object.entries(newParsedData.by_wil_holiday_year || {}).forEach(([w, hMap]) => {
+        if (!merged.by_wil_holiday_year[w]) merged.by_wil_holiday_year[w] = {};
+        Object.entries(hMap).forEach(([h, yrMap]) => {
+          if (!merged.by_wil_holiday_year[w][h as any]) merged.by_wil_holiday_year[w][h as any] = {};
+          Object.entries(yrMap).forEach(([yr, v]) => {
+            merged.by_wil_holiday_year[w][h as any][yr] = (merged.by_wil_holiday_year[w][h as any][yr] || 0) + v;
+          });
+        });
+      });
+
+      // Merge by_estab_holiday_year
+      Object.entries(newParsedData.by_estab_holiday_year || {}).forEach(([est, hMap]) => {
+        if (!merged.by_estab_holiday_year[est]) merged.by_estab_holiday_year[est] = {};
+        Object.entries(hMap).forEach(([h, yrMap]) => {
+          if (!merged.by_estab_holiday_year[est][h as any]) merged.by_estab_holiday_year[est][h as any] = {};
+          Object.entries(yrMap).forEach(([yr, v]) => {
+            merged.by_estab_holiday_year[est][h as any][yr] = (merged.by_estab_holiday_year[est][h as any][yr] || 0) + v;
+          });
+        });
+      });
+
       // Merge by_wil_year
       Object.entries(newParsedData.by_wil_year).forEach(([w, yrMap]) => {
         if (!merged.by_wil_year[w]) merged.by_wil_year[w] = {};
